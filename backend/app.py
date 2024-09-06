@@ -1,12 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask
+from controllers.image_controller import image_controller
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  
 
-@app.route('/api/hello', methods=['GET'])
-def hello():
-    return jsonify(message="¡Hola desde el backend en Flask!")
+# Habilitar CORS para permitir solicitudes desde cualquier origen
+CORS(app)
+
+# Registrar el controlador
+app.register_blueprint(image_controller)
 
 if __name__ == '__main__':
     app.run(debug=True)
