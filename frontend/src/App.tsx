@@ -6,6 +6,7 @@ import FiltrosTarea3 from './components/FiltrosTarea3';
 import FiltrosTarea4 from './components/FiltrosTarea4';
 import GrayscaleFilter from './filters/GrayscaleFilter';
 import GrayFilterWeighted from './filters/GrayFilterWeighted';
+import MicaFilter from './filters/MicaFilter';
 
 const App: React.FC = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -68,6 +69,7 @@ const App: React.FC = () => {
           <div>
             <GrayscaleFilter selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
             <GrayFilterWeighted selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+            <MicaFilter selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
           </div>
         )}
         {processedImageUrl && (
