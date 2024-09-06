@@ -18,12 +18,6 @@ const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview,
       return;
     }
 
-    // Validar los valores RGB
-    if (rValue < 0 || rValue > 255 || gValue < 0 || gValue > 255 || bValue < 0 || bValue > 255) {
-      alert('Los valores de RGB deben estar en el rango 0-255.');
-      return;
-    }
-
     const formData = new FormData();
     formData.append('image', selectedImage);
     formData.append('r_value', rValue.toString());
@@ -54,33 +48,36 @@ const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview,
       <h3>Aplicar Filtro Mica</h3>
       <div>
         <label>
-          R:
+          R ({rValue}):
           <input
-            type="number"
+            type="range"
             value={rValue}
             onChange={(e) => setRValue(parseInt(e.target.value))}
             min="0"
             max="255"
+            style={{ width: '100%' }} // Ajusta el ancho del slider
           />
         </label>
         <label>
-          G:
+          G ({gValue}):
           <input
-            type="number"
+            type="range"
             value={gValue}
             onChange={(e) => setGValue(parseInt(e.target.value))}
             min="0"
             max="255"
+            style={{ width: '100%' }} // Ajusta el ancho del slider
           />
         </label>
         <label>
-          B:
+          B ({bValue}):
           <input
-            type="number"
+            type="range"
             value={bValue}
             onChange={(e) => setBValue(parseInt(e.target.value))}
             min="0"
             max="255"
+            style={{ width: '100%' }} // Ajusta el ancho del slider
           />
         </label>
       </div>
