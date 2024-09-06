@@ -8,7 +8,8 @@ import FiltrosTarea4 from './components/FiltrosTarea4';
 const App: React.FC = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // Nuevo estado para vista previa
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // Imagen procesada
+  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null); // URL para la descarga
 
   // Función para manejar la expansión y contracción de categorías
   const toggleCategory = (category: string) => {
@@ -40,11 +41,29 @@ const App: React.FC = () => {
         body: formData,
       });
 
-      const data = await response.blob(); // Recibe la imagen procesada como blob
+      if (!response.ok) {
+        throw new Error("Error al aplicar el filtro");
+      }
+
+      // Recibe la imagen procesada como blob
+      const data = await response.blob();
+
+      // Crear una URL para mostrar la imagen procesada
       const imageUrl = URL.createObjectURL(data);
-      setImagePreview(imageUrl); // Muestra la imagen procesada
+      setImagePreview(imageUrl); // Actualizar la vista previa con la imagen procesada
+      setProcessedImageUrl(imageUrl); // Guardar la URL para la descarga
     } catch (error) {
       console.error('Error al aplicar el filtro:', error);
+    }
+  };
+
+  // Función para descargar la imagen procesada
+  const downloadImage = () => {
+    if (processedImageUrl) {
+      const link = document.createElement('a');
+      link.href = processedImageUrl;
+      link.download = 'imagen_procesada.jpg'; // Nombre del archivo que se descargará
+      link.click();
     }
   };
 
@@ -92,6 +111,11 @@ const App: React.FC = () => {
         )}
         {selectedImage && (
           <button onClick={applyGrayscaleFilter}>Aplicar Filtro de Escala de Grises</button>
+        )}
+        {processedImageUrl && (
+          <button onClick={downloadImage} style={{ marginTop: '10px' }}>
+            Descargar Imagen Procesada
+          </button>
         )}
       </main>
     </div>

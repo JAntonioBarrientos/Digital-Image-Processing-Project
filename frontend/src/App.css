@@ -107,3 +107,29 @@ button:hover {
   color: #E0E0E0; /* Texto claro */
   margin-bottom: 10px;
 }
+
+
+button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: #1E88E5; /* Azul vibrante */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #1565C0; /* Azul más oscuro en hover */
+}
+
+/* Botón de descarga */
+button.download {
+  margin-top: 10px;
+  background-color: #4CAF50; /* Verde para el botón de descarga */
+}
+
+button.download:hover {
+  background-color: #388E3C; /* Verde más oscuro en hover */
+}
