@@ -4,65 +4,32 @@ import FiltrosTarea1 from './components/FiltrosTarea1';
 import FiltrosTarea2 from './components/FiltrosTarea2';
 import FiltrosTarea3 from './components/FiltrosTarea3';
 import FiltrosTarea4 from './components/FiltrosTarea4';
+import GrayscaleFilter from './filters/GrayscaleFilter';
+import GrayFilterWeighted from './filters/GrayFilterWeighted';
 
 const App: React.FC = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null); // Imagen procesada
-  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null); // URL para la descarga
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
 
-  // Función para manejar la expansión y contracción de categorías
   const toggleCategory = (category: string) => {
     setExpandedCategory(expandedCategory === category ? null : category);
   };
 
-  // Función para manejar la subida de imágenes
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Muestra la imagen seleccionada
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  // Función para enviar la imagen al backend y aplicar el filtro de escala de grises
-  const applyGrayscaleFilter = async () => {
-    if (!selectedImage) {
-      alert('Por favor, selecciona una imagen primero.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('image', selectedImage);
-
-    try {
-      const response = await fetch('http://localhost:5000/apply-grayscale', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al aplicar el filtro");
-      }
-
-      // Recibe la imagen procesada como blob
-      const data = await response.blob();
-
-      // Crear una URL para mostrar la imagen procesada
-      const imageUrl = URL.createObjectURL(data);
-      setImagePreview(imageUrl); // Actualizar la vista previa con la imagen procesada
-      setProcessedImageUrl(imageUrl); // Guardar la URL para la descarga
-    } catch (error) {
-      console.error('Error al aplicar el filtro:', error);
-    }
-  };
-
-  // Función para descargar la imagen procesada
   const downloadImage = () => {
     if (processedImageUrl) {
       const link = document.createElement('a');
       link.href = processedImageUrl;
-      link.download = 'imagen_procesada.jpg'; // Nombre del archivo que se descargará
+      link.download = 'imagen_procesada.jpg';
       link.click();
     }
   };
@@ -71,22 +38,10 @@ const App: React.FC = () => {
     <div className="app">
       <aside className="sidebar">
         <ul>
-          <FiltrosTarea1
-            expanded={expandedCategory === 'Filtros Tarea 1'}
-            toggleCategory={() => toggleCategory('Filtros Tarea 1')}
-          />
-          <FiltrosTarea2
-            expanded={expandedCategory === 'Filtros Tarea 2'}
-            toggleCategory={() => toggleCategory('Filtros Tarea 2')}
-          />
-          <FiltrosTarea3
-            expanded={expandedCategory === 'Filtros Tarea 3'}
-            toggleCategory={() => toggleCategory('Filtros Tarea 3')}
-          />
-          <FiltrosTarea4
-            expanded={expandedCategory === 'Filtros Tarea 4'}
-            toggleCategory={() => toggleCategory('Filtros Tarea 4')}
-          />
+          <FiltrosTarea1 expanded={expandedCategory === 'Filtros Tarea 1'} toggleCategory={() => toggleCategory('Filtros Tarea 1')} />
+          <FiltrosTarea2 expanded={expandedCategory === 'Filtros Tarea 2'} toggleCategory={() => toggleCategory('Filtros Tarea 2')} />
+          <FiltrosTarea3 expanded={expandedCategory === 'Filtros Tarea 3'} toggleCategory={() => toggleCategory('Filtros Tarea 3')} />
+          <FiltrosTarea4 expanded={expandedCategory === 'Filtros Tarea 4'} toggleCategory={() => toggleCategory('Filtros Tarea 4')} />
         </ul>
       </aside>
       <main className="content">
@@ -110,7 +65,10 @@ const App: React.FC = () => {
           </div>
         )}
         {selectedImage && (
-          <button onClick={applyGrayscaleFilter}>Aplicar Filtro de Escala de Grises</button>
+          <div>
+            <GrayscaleFilter selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+            <GrayFilterWeighted selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+          </div>
         )}
         {processedImageUrl && (
           <button onClick={downloadImage} style={{ marginTop: '10px' }}>
