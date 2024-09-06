@@ -1,13 +1,22 @@
-/* Estilos generales de la app (sidebar y main content) */
+/* Fondo general oscuro */
+body {
+  background-color: #121212; /* Fondo principal */
+  color: #E0E0E0; /* Color de texto claro */
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estructura general de la aplicación (flexbox para sidebar y contenido principal) */
 .app {
   display: flex;
 }
 
-/* Sidebar (sin cambios) */
+/* Sidebar oscuro */
 .sidebar {
   width: 250px;
-  background-color: #333;
-  color: white;
+  background-color: #1e1e1e; /* Fondo oscuro para el sidebar */
+  color: #E0E0E0; /* Texto claro */
   padding: 15px;
 }
 
@@ -22,12 +31,13 @@
 }
 
 .sidebar li:hover {
-  background-color: #444;
+  background-color: #333; /* Efecto hover en sidebar */
 }
 
+/* Submenús del sidebar */
 .sub-menu {
   margin-left: 20px;
-  background-color: #444;
+  background-color: #333; /* Fondo más claro para los submenús */
 }
 
 /* Contenido principal */
@@ -35,15 +45,18 @@
   flex: 1;
   padding: 20px;
   text-align: center;
+  background-color: #121212; /* Fondo oscuro para el contenido principal */
+  border-left: 1px solid #333; /* Separador entre sidebar y contenido */
 }
 
-/* Estilos para el título */
+/* Título principal en modo oscuro */
 h1 {
   font-size: 2rem;
   margin-bottom: 20px;
+  color: #FFFFFF; /* Texto blanco */
 }
 
-/* Estilos para la sección de carga de imagen */
+/* Sección de carga de imagen */
 .upload-section {
   margin: 20px 0;
 }
@@ -53,25 +66,44 @@ h1 {
   display: inline-block;
   padding: 10px 20px;
   cursor: pointer;
-  background-color: #61dafb;
+  background-color: #1E88E5; /* Azul vibrante para el botón */
   color: white;
   border-radius: 5px;
   font-size: 1rem;
+  border: none;
 }
 
 .custom-file-upload:hover {
-  background-color: #21a1f1;
+  background-color: #1565C0; /* Azul más oscuro en hover */
 }
 
-/* Vista previa de imagen seleccionada */
+/* Botón de aplicar filtro de escala de grises */
+button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: #1E88E5; /* Azul vibrante */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #1565C0; /* Azul más oscuro en hover */
+}
+
+/* Vista previa de la imagen seleccionada/procesada */
 .image-preview img {
   max-width: 100%;
   max-height: 400px;
   margin-top: 20px;
-  border: 2px solid #ccc;
+  border: 2px solid #444; /* Borde gris oscuro */
   border-radius: 10px;
 }
 
+/* Sección de vista previa */
 .image-preview h3 {
+  color: #E0E0E0; /* Texto claro */
   margin-bottom: 10px;
 }

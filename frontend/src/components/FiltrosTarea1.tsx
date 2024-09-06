@@ -14,6 +14,7 @@ const FiltrosTarea1: React.FC<FiltrosTarea1Props> = ({ expanded, toggleCategory 
           <li>Gray Promedio</li>
           <li>Gray Ponderado Ojo humano</li>
           <li>Efecto mica RGB</li>
+          <li>Escala de Grises</li> {/* Este filtro ahora está disponible */}
         </ul>
       )}
     </li>

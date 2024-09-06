@@ -8,6 +8,7 @@ import FiltrosTarea4 from './components/FiltrosTarea4';
 const App: React.FC = () => {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // Nuevo estado para vista previa
 
   // Función para manejar la expansión y contracción de categorías
   const toggleCategory = (category: string) => {
@@ -17,7 +18,33 @@ const App: React.FC = () => {
   // Función para manejar la subida de imágenes
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setSelectedImage(event.target.files[0]);
+      const file = event.target.files[0];
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file)); // Muestra la imagen seleccionada
+    }
+  };
+
+  // Función para enviar la imagen al backend y aplicar el filtro de escala de grises
+  const applyGrayscaleFilter = async () => {
+    if (!selectedImage) {
+      alert('Por favor, selecciona una imagen primero.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', selectedImage);
+
+    try {
+      const response = await fetch('http://localhost:5000/apply-grayscale', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.blob(); // Recibe la imagen procesada como blob
+      const imageUrl = URL.createObjectURL(data);
+      setImagePreview(imageUrl); // Muestra la imagen procesada
+    } catch (error) {
+      console.error('Error al aplicar el filtro:', error);
     }
   };
 
@@ -54,14 +81,17 @@ const App: React.FC = () => {
             type="file"
             accept="image/*"
             onChange={handleImageUpload}
-            style={{ display: 'none' }} // Ocultamos el input real y usamos un botón personalizado
+            style={{ display: 'none' }}
           />
         </div>
-        {selectedImage && (
+        {imagePreview && (
           <div className="image-preview">
-            <h3>Imagen seleccionada:</h3>
-            <img src={URL.createObjectURL(selectedImage)} alt="Selected" />
+            <h3>Vista previa:</h3>
+            <img src={imagePreview} alt="Preview" />
           </div>
+        )}
+        {selectedImage && (
+          <button onClick={applyGrayscaleFilter}>Aplicar Filtro de Escala de Grises</button>
         )}
       </main>
     </div>
