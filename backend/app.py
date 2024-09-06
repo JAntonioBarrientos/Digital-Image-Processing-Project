@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Esto habilita CORS para evitar problemas de acceso desde React
+CORS(app)  
 
 @app.route('/api/hello', methods=['GET'])
 def hello():

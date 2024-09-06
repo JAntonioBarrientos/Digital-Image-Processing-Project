@@ -1,38 +1,77 @@
-.App {
+/* Estilos generales de la app (sidebar y main content) */
+.app {
+  display: flex;
+}
+
+/* Sidebar (sin cambios) */
+.sidebar {
+  width: 250px;
+  background-color: #333;
+  color: white;
+  padding: 15px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.sidebar li:hover {
+  background-color: #444;
+}
+
+.sub-menu {
+  margin-left: 20px;
+  background-color: #444;
+}
+
+/* Contenido principal */
+.content {
+  flex: 1;
+  padding: 20px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Estilos para el título */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Estilos para la sección de carga de imagen */
+.upload-section {
+  margin: 20px 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+/* Botón personalizado de carga de archivo */
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #61dafb;
   color: white;
+  border-radius: 5px;
+  font-size: 1rem;
 }
 
-.App-link {
-  color: #61dafb;
+.custom-file-upload:hover {
+  background-color: #21a1f1;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Vista previa de imagen seleccionada */
+.image-preview img {
+  max-width: 100%;
+  max-height: 400px;
+  margin-top: 20px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+}
+
+.image-preview h3 {
+  margin-bottom: 10px;
 }
