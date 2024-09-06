@@ -1,4 +1,6 @@
-# Digital Image Processing Project - Versión Tarea 1
+# Digital Image Processing Project  
+
+**Tarea 1**
 
 **Alumno:** José Antonio Barrientos Sánchez
 
@@ -25,9 +27,9 @@ Antes de ejecutar este proyecto, asegúrate de tener instalados los siguientes c
 Primero, clona el repositorio en tu máquina local:
 
 ```bash
-git clone https://github.com/JAntonioBarrientos/Digital-Image-Processing-Proyect.git
+git clone https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project.git
 
-cd Digital-Image-Processing-Proyect
+cd Digital-Image-Processing-Project
 
 ```
 
