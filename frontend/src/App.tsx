@@ -6,6 +6,10 @@ import MicaFilter from './filters/MicaFilter';
 import BlurFilter from './filters/BlurFilter'; // Filtro Blur
 import CustomDiagonalFilter from './filters/CustomDiagonalFilter'; // Filtro Diagonal Personalizado
 import FindEdgesFilter from './filters/FindEdgesFilter'; // Filtro Find Edges
+import SharpenFilter from './filters/SharpenFilter'; // Importar filtro Sharpen
+import EmbossFilter from './filters/EmbossFilter'; // Importar filtro Emboss
+import MeanFilter from './filters/MeanFilter';
+
 
 
 const App: React.FC = () => {
@@ -73,6 +77,9 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('blur')}>Filtro de Blur</li>
               <li onClick={() => setSelectedFilter('custom-diagonal')}>Filtro Motion Blur</li>
               <li onClick={() => setSelectedFilter('find-edges')}>Filtro Find Edges</li>
+              <li onClick={() => setSelectedFilter('sharpen')}>Filtro Sharpen</li>
+              <li onClick={() => setSelectedFilter('emboss')}>Filtro Emboss</li>
+              <li onClick={() => setSelectedFilter('mean')}>Filtro Promedio</li>
             </ul>
           )}
         </div>
@@ -156,8 +163,30 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
-
-
+            {selectedImage && selectedFilter === 'sharpen' && (  
+              <SharpenFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'emboss' && (
+              <EmbossFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'mean' && (
+              <MeanFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">

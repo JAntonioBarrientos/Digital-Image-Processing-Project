@@ -4,6 +4,9 @@ from models.filters.mica_filter import MicaFilter
 from models.convolutionFilters.filters.blur_filter import BlurFilter
 from models.convolutionFilters.filters.custom_diagonal_filter import CustomDiagonalFilter  
 from models.convolutionFilters.filters.find_edges_filter import FindEdgesFilter
+from models.convolutionFilters.filters.sharpen_filter import SharpenFilter
+from models.convolutionFilters.filters.emboss_filter import EmbossFilter
+from models.convolutionFilters.filters.mean_filter import MeanFilter
 from utils.image_loader import ImageLoader
 
 class ImageService:
@@ -40,3 +43,18 @@ class ImageService:
     def apply_find_edges_filter(self):
         find_edges_filter = FindEdgesFilter(self.image)
         return find_edges_filter.apply_filter()
+
+    # Método para aplicar el filtro de sharpen
+    def apply_sharpen_filter(self):
+        sharpen_filter = SharpenFilter(self.image)
+        return sharpen_filter.apply_filter()
+
+    # Método para aplicar el filtro de emboss
+    def apply_emboss_filter(self):
+        emboss_filter = EmbossFilter(self.image)
+        return emboss_filter.apply_filter()
+    
+    # Método para aplicar el filtro de media
+    def apply_mean_filter(self):
+        mean_filter = MeanFilter(self.image)
+        return mean_filter.apply_filter()
