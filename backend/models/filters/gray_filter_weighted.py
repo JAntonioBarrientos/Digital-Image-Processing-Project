@@ -1,8 +1,10 @@
 from PIL import Image
+from models.base_filter import BaseFilter  
 
-class GrayFilterWeighted:
+class GrayFilterWeighted(BaseFilter):  # Hereda de BaseFilter
     def __init__(self, image):
-        self.image = image
+        # Llamar al constructor de la clase base
+        super().__init__(image)
 
     # Método que aplica el filtro de escala de grises ponderado
     def apply_filter(self):

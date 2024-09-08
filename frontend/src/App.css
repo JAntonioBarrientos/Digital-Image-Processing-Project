@@ -29,6 +29,12 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   height: auto; /* Permite que crezca según el contenido */
+  transition: transform 0.3s ease; /* Transición para el retraimiento */
+}
+
+/* Ocultar la barra lateral cuando esté retraída */
+.sidebar.retracted {
+  transform: translateX(-100%);
 }
 
 .sidebar h2 {
@@ -75,21 +81,64 @@ html, body, #root {
   background-color: #555;
 }
 
+/* Botón de toggle para retraer la barra lateral */
+.toggle-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 1rem;
+  z-index: 1000;
+}
+
+.toggle-button:hover {
+  background-color: #0056b3;
+}
+
 /* Área de previsualización de la imagen */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
+  justify-content: center; /* Centrar verticalmente el contenido */
+  align-items: center; /* Centrar horizontalmente el contenido */
   padding: 20px;
-  height: auto; /* Permite que crezca si el contenido es largo */
+  width: 100%;
+  height: 100%; /* Ocupa el 100% del espacio vertical */
+  transition: margin-left 0.3s ease; /* Transición suave para el contenido principal */
+  box-sizing: border-box; /* Asegura que el padding se incluya en las dimensiones */
+}
+
+/* Expande el contenido principal cuando la sidebar está retraída */
+.main-content.expanded {
+  margin-left: -250px;
 }
 
 .image-preview-container {
-  max-width: 700px;
   width: 100%;
   text-align: center;
+  flex-grow: 1; /* Permite que el contenedor crezca si es necesario */
+  display: flex;
+  justify-content: center; /* Centra el contenido horizontalmente */
+  align-items: center; /* Centra el contenido verticalmente */
+  flex-direction: column;
+}
+
+.image-preview img {
+  max-width: 100%; /* Ajusta al 100% del ancho del contenedor */
+  max-height: 60vh; /* Limita la altura máxima al 60% de la altura de la ventana */
+  height: auto;
+  border-radius: 10px;
+  border: 2px solid #333;
+  transition: max-width 0.3s ease; /* Añadir transición para cambio de tamaño */
+}
+
+.main-content.expanded .image-preview img {
+  max-width: 100%; /* Ajustar el tamaño de la imagen cuando la barra esté retraída */
 }
 
 h2 {

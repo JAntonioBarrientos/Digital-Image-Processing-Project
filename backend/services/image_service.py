@@ -1,6 +1,7 @@
 from models.filters.grayscale_filter import GrayscaleFilter
 from models.filters.gray_filter_weighted import GrayFilterWeighted
 from models.filters.mica_filter import MicaFilter
+from models.convolutionFilters.filters.blur_filter import BlurFilter  
 from utils.image_loader import ImageLoader
 
 class ImageService:
@@ -22,3 +23,8 @@ class ImageService:
     def apply_mica_filter(self, r_value, g_value, b_value):
         mica_filter = MicaFilter(self.image, r_value, g_value, b_value)
         return mica_filter.apply_filter()
+
+    # Método para aplicar el filtro de desenfoque (Blur)
+    def apply_blur_filter(self, intensity):
+        blur_filter = BlurFilter(self.image)
+        return blur_filter.apply_filter(intensity)

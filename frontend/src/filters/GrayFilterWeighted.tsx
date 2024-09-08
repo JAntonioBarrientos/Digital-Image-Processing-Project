@@ -4,14 +4,17 @@ interface FilterProps {
   selectedImage: File | null;
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
+  setIsProcessing: (isProcessing: boolean) => void; 
 }
 
-const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl }) => {
+const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   const applyFilter = async () => {
     if (!selectedImage) {
       alert('Por favor, selecciona una imagen primero.');
       return;
     }
+
+    setIsProcessing(true);
 
     const formData = new FormData();
     formData.append('image', selectedImage);
@@ -32,6 +35,8 @@ const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePrev
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro:', error);
+    } finally {
+      setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
   };
 
