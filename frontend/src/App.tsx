@@ -3,13 +3,23 @@ import './App.css';
 import GrayscaleFilter from './filters/GrayscaleFilter';
 import GrayFilterWeighted from './filters/GrayFilterWeighted';
 import MicaFilter from './filters/MicaFilter';
+import BlurFilter from './filters/BlurFilter'; // Filtro Blur
+import CustomDiagonalFilter from './filters/CustomDiagonalFilter'; // Filtro Diagonal Personalizado
+import FindEdgesFilter from './filters/FindEdgesFilter'; // Filtro Find Edges
+import SharpenFilter from './filters/SharpenFilter'; // Importar filtro Sharpen
+import EmbossFilter from './filters/EmbossFilter'; // Importar filtro Emboss
+import MeanFilter from './filters/MeanFilter';
+
+
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null); // Estado para el filtro seleccionado
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null); // Estado para las categorías desplegables
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null); // Filtro seleccionado
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null); // Categorías
+  const [isProcessing, setIsProcessing] = useState<boolean>(false); // Estado de procesamiento
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true); // Controla la visibilidad de la barra lateral
 
   // Función para manejar la carga de imágenes
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,13 +40,21 @@ const App: React.FC = () => {
     }
   };
 
+  // Función para alternar la visibilidad de la barra lateral
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
   return (
     <div className="app">
-      {/* Barra lateral izquierda para los filtros */}
-      <aside className="sidebar">
-        <h2>Filtros</h2>
+      {/* Botón para retraer o mostrar la barra lateral */}
+      <button className="toggle-button" onClick={toggleSidebar}>
+        {isSidebarVisible ? '<<' : '>>'}
+      </button>
 
-        {/* Categoría de Tarea 1 */}
+      {/* Barra lateral izquierda (retraíble) */}
+      <aside className={`sidebar ${isSidebarVisible ? '' : 'retracted'}`}>
+        <h2>Filtros</h2>
         <div className="category">
           <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea1' ? null : 'tarea1')}>
             Tarea 1
@@ -50,26 +68,28 @@ const App: React.FC = () => {
           )}
         </div>
 
-        {/* Otras categorías que puedes añadir en el futuro */}
         <div className="category">
           <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea2' ? null : 'tarea2')}>
             Tarea 2
           </div>
           {expandedCategory === 'tarea2' && (
             <ul>
-              <li>Filtro de Blur</li>
-              <li>Filtro de Sharpen</li>
+              <li onClick={() => setSelectedFilter('blur')}>Filtro de Blur</li>
+              <li onClick={() => setSelectedFilter('custom-diagonal')}>Filtro Motion Blur</li>
+              <li onClick={() => setSelectedFilter('find-edges')}>Filtro Find Edges</li>
+              <li onClick={() => setSelectedFilter('sharpen')}>Filtro Sharpen</li>
+              <li onClick={() => setSelectedFilter('emboss')}>Filtro Emboss</li>
+              <li onClick={() => setSelectedFilter('mean')}>Filtro Promedio</li>
             </ul>
           )}
         </div>
-
-        {/* Añadir más categorías aquí */}
       </aside>
 
-      {/* Área principal para la previsualización de la imagen */}
-      <main className="main-content">
+      {/* Contenido principal */}
+      <main className={`main-content ${isSidebarVisible ? '' : 'expanded'}`}>
         <div className="image-preview-container">
           <h2>Previsualización</h2>
+
           <div className="upload-section">
             <label htmlFor="file-upload" className="custom-file-upload">
               Cargar Imagen
@@ -83,24 +103,91 @@ const App: React.FC = () => {
             />
           </div>
 
+          {/* Previsualización de la imagen seleccionada */}
           {imagePreview && (
             <div className="image-preview">
-              <img src={imagePreview} alt="Preview" />
+              <img src={imagePreview} alt="Previsualización" />
             </div>
           )}
 
-          {/* Mostrar botón de filtro seleccionado */}
+          {/* Mostrar el mensaje de procesamiento si está en proceso */}
+          {isProcessing && <p>Procesando imagen...</p>}
+
+          {/* Mostrar el botón del filtro seleccionado */}
           <div className="button-group">
             {selectedImage && selectedFilter === 'grayscale' && (
-              <GrayscaleFilter selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+              <GrayscaleFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
             )}
             {selectedImage && selectedFilter === 'gray-weighted' && (
-              <GrayFilterWeighted selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+              <GrayFilterWeighted
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
             )}
             {selectedImage && selectedFilter === 'mica' && (
-              <MicaFilter selectedImage={selectedImage} setImagePreview={setImagePreview} setProcessedImageUrl={setProcessedImageUrl} />
+              <MicaFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
             )}
-
+            {selectedImage && selectedFilter === 'blur' && (
+              <BlurFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'custom-diagonal' && (
+              <CustomDiagonalFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'find-edges' && (
+              <FindEdgesFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'sharpen' && (  
+              <SharpenFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'emboss' && (
+              <EmbossFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'mean' && (
+              <MeanFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">
                 Descargar Imagen Procesada

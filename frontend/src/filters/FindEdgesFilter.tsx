@@ -1,32 +1,32 @@
 import React from 'react';
 
-interface FilterProps {
+interface FindEdgesFilterProps {
   selectedImage: File | null;
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
-  setIsProcessing: (isProcessing: boolean) => void; 
+  setIsProcessing: (isProcessing: boolean) => void;
 }
 
-const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
+const FindEdgesFilter: React.FC<FindEdgesFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   const applyFilter = async () => {
     if (!selectedImage) {
       alert('Por favor, selecciona una imagen primero.');
       return;
     }
 
-    setIsProcessing(true);
+    setIsProcessing(true); // Activar el mensaje de "Procesando imagen..."
 
     const formData = new FormData();
     formData.append('image', selectedImage);
 
     try {
-      const response = await fetch('http://localhost:5000/apply-gray-weighted', {
+      const response = await fetch('http://localhost:5000/apply-find-edges', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Error al aplicar el filtro');
+        throw new Error('Error al aplicar el filtro de Detección de Bordes');
       }
 
       const data = await response.blob();
@@ -34,13 +34,13 @@ const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePrev
       setImagePreview(imageUrl);
       setProcessedImageUrl(imageUrl);
     } catch (error) {
-      console.error('Error al aplicar el filtro:', error);
+      console.error('Error al aplicar el filtro de Detección de Bordes:', error);
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
   };
 
-  return <button onClick={applyFilter}>Aplicar Filtro Ponderado</button>;
+  return <button onClick={applyFilter}>Aplicar Filtro Detección de Bordes</button>;
 };
 
-export default GrayFilterWeighted;
+export default FindEdgesFilter;

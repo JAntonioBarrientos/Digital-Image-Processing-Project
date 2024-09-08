@@ -1,11 +1,14 @@
-# 1. Imagen base con Python
-FROM python:3.9-slim
+# 1. Imagen base con Python 3.11
+FROM python:3.11-slim
 
 # 2. Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
 
 # 3. Copiar el archivo de requerimientos
 COPY requirements.txt .
+
+# Actualizar pip
+RUN pip install --upgrade pip
 
 # 4. Instalar las dependencias
 RUN pip install --no-cache-dir -r requirements.txt

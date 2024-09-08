@@ -1,8 +1,11 @@
 from PIL import Image
+from models.base_filter import BaseFilter  
 
-class MicaFilter:
+class MicaFilter(BaseFilter):  # Hereda de BaseFilter
     def __init__(self, image, r_value, g_value, b_value):
-        self.image = image
+        # Llama al constructor de la clase base
+        super().__init__(image)
+        # Inicializa los valores específicos del filtro de mica
         self.r_value = r_value
         self.g_value = g_value
         self.b_value = b_value

@@ -4,9 +4,10 @@ interface MicaFilterProps {
   selectedImage: File | null;
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
+  setIsProcessing: (isProcessing: boolean) => void; 
 }
 
-const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl }) => {
+const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   const [rValue, setRValue] = useState<number>(255); // Valor inicial para R
   const [gValue, setGValue] = useState<number>(255); // Valor inicial para G
   const [bValue, setBValue] = useState<number>(255); // Valor inicial para B
@@ -17,6 +18,8 @@ const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview,
       alert('Por favor, selecciona una imagen primero.');
       return;
     }
+
+    setIsProcessing(true);
 
     const formData = new FormData();
     formData.append('image', selectedImage);
@@ -40,7 +43,10 @@ const MicaFilter: React.FC<MicaFilterProps> = ({ selectedImage, setImagePreview,
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro:', error);
+    } finally {
+      setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
+
   };
 
   return (

@@ -1,8 +1,10 @@
 from PIL import Image
+from models.base_filter import BaseFilter  
 
-class GrayscaleFilter:
+class GrayscaleFilter(BaseFilter):
     def __init__(self, image):
-        self.image = image
+        # Llamar al constructor de la clase base
+        super().__init__(image)
 
     # Método que aplica el filtro de escala de grises de manera manual
     def apply_filter(self):
@@ -20,5 +22,3 @@ class GrayscaleFilter:
                 pixels[i, j] = (p, p, p)  # Asignar el nuevo valor de píxel en escala de grises
 
         return img  # Retornar la imagen procesada
-
-    
