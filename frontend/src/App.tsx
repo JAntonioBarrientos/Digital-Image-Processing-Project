@@ -5,6 +5,8 @@ import GrayFilterWeighted from './filters/GrayFilterWeighted';
 import MicaFilter from './filters/MicaFilter';
 import BlurFilter from './filters/BlurFilter'; // Filtro Blur
 import CustomDiagonalFilter from './filters/CustomDiagonalFilter'; // Filtro Diagonal Personalizado
+import FindEdgesFilter from './filters/FindEdgesFilter'; // Filtro Find Edges
+
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -69,7 +71,8 @@ const App: React.FC = () => {
           {expandedCategory === 'tarea2' && (
             <ul>
               <li onClick={() => setSelectedFilter('blur')}>Filtro de Blur</li>
-              <li onClick={() => setSelectedFilter('custom-diagonal')}>Filtro Diagonal Personalizado</li>
+              <li onClick={() => setSelectedFilter('custom-diagonal')}>Filtro Motion Blur</li>
+              <li onClick={() => setSelectedFilter('find-edges')}>Filtro Find Edges</li>
             </ul>
           )}
         </div>
@@ -145,6 +148,15 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
+            {selectedImage && selectedFilter === 'find-edges' && (
+              <FindEdgesFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+
 
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (

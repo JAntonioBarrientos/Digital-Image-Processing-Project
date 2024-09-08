@@ -3,6 +3,7 @@ from models.filters.gray_filter_weighted import GrayFilterWeighted
 from models.filters.mica_filter import MicaFilter
 from models.convolutionFilters.filters.blur_filter import BlurFilter
 from models.convolutionFilters.filters.custom_diagonal_filter import CustomDiagonalFilter  
+from models.convolutionFilters.filters.find_edges_filter import FindEdgesFilter
 from utils.image_loader import ImageLoader
 
 class ImageService:
@@ -34,3 +35,8 @@ class ImageService:
     def apply_custom_diagonal_filter(self, intensity):
         custom_diagonal_filter = CustomDiagonalFilter(self.image)
         return custom_diagonal_filter.apply_filter(intensity)
+
+    # Método para aplicar el filtro de detección de bordes
+    def apply_find_edges_filter(self):
+        find_edges_filter = FindEdgesFilter(self.image)
+        return find_edges_filter.apply_filter()
