@@ -4,6 +4,7 @@ import GrayscaleFilter from './filters/GrayscaleFilter';
 import GrayFilterWeighted from './filters/GrayFilterWeighted';
 import MicaFilter from './filters/MicaFilter';
 import BlurFilter from './filters/BlurFilter'; // Filtro Blur
+import CustomDiagonalFilter from './filters/CustomDiagonalFilter'; // Filtro Diagonal Personalizado
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -68,6 +69,7 @@ const App: React.FC = () => {
           {expandedCategory === 'tarea2' && (
             <ul>
               <li onClick={() => setSelectedFilter('blur')}>Filtro de Blur</li>
+              <li onClick={() => setSelectedFilter('custom-diagonal')}>Filtro Diagonal Personalizado</li>
             </ul>
           )}
         </div>
@@ -129,6 +131,14 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'blur' && (
               <BlurFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'custom-diagonal' && (
+              <CustomDiagonalFilter
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}

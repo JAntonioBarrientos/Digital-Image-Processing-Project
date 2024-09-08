@@ -95,3 +95,33 @@ def apply_blur():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para aplicar el filtro diagonal personalizado
+@image_controller.route('/apply-custom-diagonal-filter', methods=['POST'])
+def apply_custom_diagonal_filter():
+    if 'image' not in request.files:
+        return "No image file uploaded", 400
+
+    image_file = request.files['image']
+
+    # Obtener la intensidad del filtro desde el formulario
+    try:
+        intensity = int(request.form['intensity'])
+    except (ValueError, KeyError):
+        return "Intensidad inválida o faltante", 400
+
+    # Validar que la intensidad esté en el rango correcto
+    if not (1 <= intensity <= 25):
+        return "La intensidad debe estar entre 1 y 25", 400
+
+    # Procesar la imagen aplicando el filtro diagonal personalizado
+    image_service = ImageService(image_file)
+    processed_image = image_service.apply_custom_diagonal_filter(intensity)
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)  # Mover el cursor al inicio del flujo
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')

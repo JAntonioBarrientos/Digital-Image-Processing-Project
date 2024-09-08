@@ -1,7 +1,8 @@
 from models.filters.grayscale_filter import GrayscaleFilter
 from models.filters.gray_filter_weighted import GrayFilterWeighted
 from models.filters.mica_filter import MicaFilter
-from models.convolutionFilters.filters.blur_filter import BlurFilter  
+from models.convolutionFilters.filters.blur_filter import BlurFilter
+from models.convolutionFilters.filters.custom_diagonal_filter import CustomDiagonalFilter  
 from utils.image_loader import ImageLoader
 
 class ImageService:
@@ -28,3 +29,8 @@ class ImageService:
     def apply_blur_filter(self, intensity):
         blur_filter = BlurFilter(self.image)
         return blur_filter.apply_filter(intensity)
+
+    # Método para aplicar un filtro personalizado diagonal
+    def apply_custom_diagonal_filter(self, intensity):
+        custom_diagonal_filter = CustomDiagonalFilter(self.image)
+        return custom_diagonal_filter.apply_filter(intensity)
