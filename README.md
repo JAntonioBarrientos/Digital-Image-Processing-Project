@@ -1,6 +1,6 @@
 # Digital Image Processing Project  
 
-**Tarea 1**
+**Tarea 2**
 
 **Alumno:** José Antonio Barrientos Sánchez
 
@@ -142,10 +142,19 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Escala de grises
 - Escala de grises ponderada
 - Efecto mica RGB
+- Efecto Blur
+- Efecto Motion Blur
+- Efecto Sharpen
+- Efecto Emboss
+- Efecto Find Edges
+- Efecto Promedio
 
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
 ```
 backend/models/filters
+backend/models/convolutionFilters/filters
+
 ```
+
 
