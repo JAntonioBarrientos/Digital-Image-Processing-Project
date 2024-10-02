@@ -10,8 +10,8 @@ interface RecursiveGrayFilterProps {
 
 const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   // Valores por defecto para los inputs
-  const [nVariantes, setNVariantes] = useState<number>(25); // Valor por defecto de n_variantes
-  const [gridFactor, setGridFactor] = useState<number>(50); // Valor por defecto de grid_factor
+  const [nVariantes, setNVariantes] = useState<number>(50); // Valor por defecto de n_variantes
+  const [gridFactor, setGridFactor] = useState<number>(120); // Valor por defecto de grid_factor
   const [errorMessage, setErrorMessage] = useState<string | null>(null);  // Estado para el mensaje de error
 
 

@@ -1,8 +1,10 @@
 from PIL import Image
 from models.base_filter import BaseFilter
 from models.filters.grayscale_filter import GrayscaleFilter
+import math
 
 class RecursiveImagesGray(BaseFilter):
+
     def __init__(self, image, num_variations, grid_factor):
         """
         Inicializa el filtro de imágenes recursivas con una imagen,
@@ -17,10 +19,13 @@ class RecursiveImagesGray(BaseFilter):
         
         # Obtener dimensiones originales de la imagen
         width, height = self.image.size
-        self.width = width
-        self.height = height
-        self.grid_width = width // grid_factor
-        self.grid_height = height // grid_factor
+        ## Calcular el upscale factor
+        upscale_factor = int(math.sqrt(grid_factor))
+
+        self.width = upscale_factor * width
+        self.height = upscale_factor * height
+        self.grid_width = self.width // grid_factor
+        self.grid_height = self.height // grid_factor
         self.grid_factor = grid_factor
 
         # Validar el factor de cuadrícula este en el rango correcto
@@ -96,11 +101,14 @@ class RecursiveImagesGray(BaseFilter):
         # Cargar los píxeles de la imagen
         pixels = recursive_image.load()
 
+        # Imagen escalada al tamaño de la cuadrícula
+        image_upscaled = self.image.resize((self.width, self.height))
+
         # Iterar sobre cada cuadrícula
         for i in range(0, self.grid_width*self.grid_factor, self.grid_width):
             for j in range(0, self.grid_height*self.grid_factor, self.grid_height):
                 # Obtener el promedio de los valores RGB de la cuadrícula
-                r, g, b = self.calculate_average_color(self.image, i, j)
+                r, g, b = self.calculate_average_color(image_upscaled, i, j)
                 # Calcular el promedio de los valores RGB
                 p = (r + g + b) // 3
                 # Calcular el valor de escala de grises más cercano
