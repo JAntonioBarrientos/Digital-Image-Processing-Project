@@ -11,5 +11,5 @@ CORS(app)
 app.register_blueprint(image_controller)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)  # Desactivar el modo debug en producción
+    app.run(host='0.0.0.0', port=5000, debug=True)
 

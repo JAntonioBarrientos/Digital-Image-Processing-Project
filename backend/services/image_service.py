@@ -8,6 +8,7 @@ from models.convolutionFilters.filters.sharpen_filter import SharpenFilter
 from models.convolutionFilters.filters.emboss_filter import EmbossFilter
 from models.convolutionFilters.filters.mean_filter import MeanFilter
 from utils.image_loader import ImageLoader
+from models.recursiveImage.recursive_images_gray import RecursiveImagesGray
 
 class ImageService:
     def __init__(self, image_file):
@@ -58,3 +59,8 @@ class ImageService:
     def apply_mean_filter(self):
         mean_filter = MeanFilter(self.image)
         return mean_filter.apply_filter()
+
+    # Método para aplicar el filtro de imágenes recursivas
+    def apply_recursive_gray_filter(self, n_variantes, grid_factor):
+        recursive_image = RecursiveImagesGray(self.image, n_variantes, grid_factor)
+        return recursive_image.apply_filter()
