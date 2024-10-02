@@ -124,7 +124,6 @@ source venv/bin/activate
 4. Instala las dependencias del backend:
 
 ```bash
-
 pip install -r requirements.txt
 ```
 
@@ -148,12 +147,15 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Efecto Emboss
 - Efecto Find Edges
 - Efecto Promedio
+- Imagenes recursivas en escala de grises
+- Imagenes recursivas en escala de grises ponderada
 
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
 ```
 backend/models/filters
 backend/models/convolutionFilters/filters
+backend/models/recursiveImages
 
 ```
 

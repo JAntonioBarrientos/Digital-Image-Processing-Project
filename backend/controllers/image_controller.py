@@ -243,3 +243,33 @@ def apply_recursive_image_gray():
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
 
+
+# Ruta para aplicar el filtro de imagen recursiva escala de grises
+
+@image_controller.route('/apply-recursive-image-color', methods=['POST'])
+def apply_recursive_image_color():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    image_file = request.files['image']
+
+    try:
+        grid_factor = int(request.form['grid_factor'])
+    except ValueError:
+        grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
+
+    # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_recursive_color_filter(grid_factor)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+

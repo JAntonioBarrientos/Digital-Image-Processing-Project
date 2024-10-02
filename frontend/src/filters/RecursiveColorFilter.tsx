@@ -1,38 +1,43 @@
+import { error } from 'console';
 import React, { useState } from 'react';
 
-interface RecursiveGrayFilterProps {
+interface RecursiveColorFilterProps {
   selectedImage: File | null;
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
 }
 
-const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
+const RecursiveColorFilter: React.FC<RecursiveColorFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   // Valores por defecto para los inputs
-  const [nVariantes, setNVariantes] = useState<number>(5); // Valor por defecto de n_variantes
-  const [gridFactor, setGridFactor] = useState<number>(50); // Valor por defecto de grid_factor
+  const [gridFactor, setGridFactor] = useState<number>(80); // Valor por defecto de grid_factor
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);  // Estado para el mensaje de error
+
 
   // Función para aplicar el filtro de imagen recursiva en escala de grises
-  const applyRecursiveGrayFilter = async () => {
+  const applyRecursiveColorFilter = async () => {
     if (!selectedImage) {
       alert('Por favor, selecciona una imagen primero.');
       return;
     }
 
     setIsProcessing(true);
+    setErrorMessage(null);
 
     const formData = new FormData();
     formData.append('image', selectedImage);
-    formData.append('n_variantes', nVariantes.toString());
     formData.append('grid_factor', gridFactor.toString());
 
     try {
-      const response = await fetch('http://localhost:5000/apply-recursive-image-gray', {
+      const response = await fetch('http://localhost:5000/apply-recursive-image-color', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.error);
+        alert('Error al aplicar el filtro');
         throw new Error('Error al aplicar el filtro');
       }
 
@@ -49,34 +54,22 @@ const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({ selectedImage
 
   return (
     <div>
-      <h3>Aplicar Filtro de Imagen Recursiva en Escala de Grises</h3>
+      <h3>Aplicar Filtro de Imagen Recursiva en color real.</h3>
       <div>
-        <label>
-          Número de Variantes ({nVariantes}):
-          <input
-            type="number"
-            value={nVariantes}
-            onChange={(e) => setNVariantes(parseInt(e.target.value))}
-            min="2"
-            max="256"
-            style={{ width: '100%' }}
-          />
-        </label>
         <label>
           Factor de Cuadrícula ({gridFactor}):
           <input
             type="number"
             value={gridFactor}
             onChange={(e) => setGridFactor(parseInt(e.target.value))}
-            min="2"
-            max="16"
-            style={{ width: '100%' }}
+            style={{ width: '20%' }}
           />
         </label>
       </div>
-      <button onClick={applyRecursiveGrayFilter}>Aplicar Filtro Recursivo Grayscale</button>
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
+      <button onClick={applyRecursiveColorFilter}>Aplicar Filtro Recursivo de Color</button>
     </div>
   );
 };
 
-export default RecursiveGrayFilter;
+export default RecursiveColorFilter;
