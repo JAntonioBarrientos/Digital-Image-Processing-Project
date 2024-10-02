@@ -1,6 +1,6 @@
 # Digital Image Processing Project  
 
-**Tarea 2**
+**Tarea 3**
 
 **Alumno:** José Antonio Barrientos Sánchez
 
