@@ -9,6 +9,8 @@ import FindEdgesFilter from './filters/FindEdgesFilter'; // Filtro Find Edges
 import SharpenFilter from './filters/SharpenFilter'; // Importar filtro Sharpen
 import EmbossFilter from './filters/EmbossFilter'; // Importar filtro Emboss
 import MeanFilter from './filters/MeanFilter';
+import RecursiveGrayFilter from './filters/RecursiveGrayFilter';
+import RecursiveColorFilter from './filters/RecursiveColorFilter';
 
 
 
@@ -80,6 +82,18 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('sharpen')}>Filtro Sharpen</li>
               <li onClick={() => setSelectedFilter('emboss')}>Filtro Emboss</li>
               <li onClick={() => setSelectedFilter('mean')}>Filtro Promedio</li>
+            </ul>
+          )}
+        </div>
+
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea3' ? null : 'tarea3')}>
+            Tarea 3
+          </div>
+          {expandedCategory === 'tarea3' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('recursive-gray')}>Imagen recursiva escala de grises</li>
+              <li onClick={() => setSelectedFilter('recursive-color')}>Imagen recursiva a color real</li>
             </ul>
           )}
         </div>
@@ -187,6 +201,23 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
+            {selectedImage && selectedFilter === 'recursive-gray' && (
+              <RecursiveGrayFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'recursive-color' && (
+              <RecursiveColorFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">
