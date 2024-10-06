@@ -13,6 +13,7 @@ import RecursiveGrayFilter from './filters/RecursiveGrayFilter';
 import RecursiveColorFilter from './filters/RecursiveColorFilter';
 import WatermarkFilter from './filters/WatermarkFilter';
 import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
+import HalftoneFilter from './filters/HalftoneFilter';
 
 
 
@@ -107,6 +108,16 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('watermark')}>Marca de agua</li>
               <li onClick={() => setSelectedFilter('watermark-diagonal')}>Marca de agua diagonal</li>
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea5' ? null : 'tarea5')}>
+            Tarea 5
+          </div>
+          {expandedCategory === 'tarea5' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('halftone')}>Semitonos</li>
             </ul>
           )}
         </div>
@@ -246,7 +257,14 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
-            
+            {selectedImage && selectedFilter === 'halftone' && (
+              <HalftoneFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}            
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">
