@@ -10,6 +10,8 @@ from models.convolutionFilters.filters.mean_filter import MeanFilter
 from utils.image_loader import ImageLoader
 from models.recursiveImage.recursive_images_gray import RecursiveImagesGray
 from models.recursiveImage.recursive_images_color import RecursiveImagesColor
+from models.watermark.water_mark_filter import WatermarkFilter
+from models.watermark.water_mark_filter_diagonal import WatermarkFilterDiagonal
 
 class ImageService:
     def __init__(self, image_file):
@@ -70,3 +72,13 @@ class ImageService:
     def apply_recursive_color_filter(self, grid_factor):
         recursive_image = RecursiveImagesColor(self.image, grid_factor)
         return recursive_image.apply_filter()
+
+    # Método para aplicar el filtro de marca de agua
+    def apply_watermark_filter(self, texto, coordenadas, alpha, tamaño_fuente):
+        watermark_filter = WatermarkFilter(self.image, texto, coordenadas, alpha, tamaño_fuente)
+        return watermark_filter.apply_filter()
+
+    # Método para aplicar el filtro de marca de agua diagonal
+    def apply_watermark_diagonal_filter(self, texto, alpha, tamaño_fuente):
+        watermark_filter_diagonal = WatermarkFilterDiagonal(self.image, texto, alpha, tamaño_fuente)
+        return watermark_filter_diagonal.apply_filter()
