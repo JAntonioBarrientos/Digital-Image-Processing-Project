@@ -11,6 +11,8 @@ import EmbossFilter from './filters/EmbossFilter'; // Importar filtro Emboss
 import MeanFilter from './filters/MeanFilter';
 import RecursiveGrayFilter from './filters/RecursiveGrayFilter';
 import RecursiveColorFilter from './filters/RecursiveColorFilter';
+import WatermarkFilter from './filters/WatermarkFilter';
+import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
 
 
 
@@ -94,6 +96,17 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('recursive-gray')}>Imagen recursiva escala de grises</li>
               <li onClick={() => setSelectedFilter('recursive-color')}>Imagen recursiva a color real</li>
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea4' ? null : 'tarea4')}>
+            Tarea 4
+          </div>
+          {expandedCategory === 'tarea4' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('watermark')}>Marca de agua</li>
+              <li onClick={() => setSelectedFilter('watermark-diagonal')}>Marca de agua diagonal</li>
             </ul>
           )}
         </div>
@@ -211,6 +224,22 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'recursive-color' && (
               <RecursiveColorFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'watermark' && (
+              <WatermarkFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'watermark-diagonal' && (
+              <WatermarkFilterDiagonal
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}

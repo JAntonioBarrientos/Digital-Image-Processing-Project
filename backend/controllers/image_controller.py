@@ -273,3 +273,89 @@ def apply_recursive_image_color():
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
 
+# Ruta para aplicar el filtro de watermark
+
+@image_controller.route('/apply-watermark-filter', methods=['POST'])
+def apply_watermark():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    image_file = request.files['image']
+
+    # Obtener el texto de la marca de agua desde el formulario
+    try:
+        texto = request.form['text']
+    except KeyError:
+        return jsonify({"error": "Texto de marca de agua faltante"}), 400
+
+    # Obtener las coordenadas (x, y) de la marca de agua desde el formulario
+    try:
+        x = int(request.form['x_coord'])
+        y = int(request.form['y_coord'])
+        coordenadas = (x, y)
+    except (ValueError, KeyError):
+        return jsonify({"error": "Coordenadas de marca de agua inválidas o faltantes"}), 400
+
+    # Obtener el valor de transparencia (alpha) desde el formulario
+    try:
+        alpha = float(request.form['alpha'])
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor de transparencia (alpha) inválido o faltante"}), 400
+
+    # Obtener el tamaño de la fuente desde el formulario
+    try:
+        tamaño_fuente = int(request.form['font_size'])
+    except (ValueError, KeyError):
+        return jsonify({"error": "Tamaño de fuente inválido o faltante"}), 400
+
+    # Procesar la imagen aplicando el filtro de marca de agua
+    image_service = ImageService(image_file)
+    processed_image = image_service.apply_watermark_filter(texto, coordenadas, alpha, tamaño_fuente)
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para aplicar el filtro de watermark diagonal
+
+@image_controller.route('/apply-watermark-filter-diagonal', methods=['POST'])
+def apply_watermark_diagonal():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    image_file = request.files['image']
+
+    # Obtener el texto de la marca de agua desde el formulario
+    try:
+        texto = request.form['text']
+    except KeyError:
+        return jsonify({"error": "Texto de marca de agua faltante"}), 400
+
+    
+    # Obtener el valor de transparencia (alpha) desde el formulario
+    try:
+        alpha = float(request.form['alpha'])
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor de transparencia (alpha) inválido o faltante"}), 400
+
+    # Obtener el tamaño de la fuente desde el formulario
+    try:
+        tamaño_fuente = int(request.form['font_size'])
+    except (ValueError, KeyError):
+        return jsonify({"error": "Tamaño de fuente inválido o faltante"}), 400
+
+    # Procesar la imagen aplicando el filtro de marca de agua
+    image_service = ImageService(image_file)
+    processed_image = image_service.apply_watermark_diagonal_filter(texto, alpha, tamaño_fuente)
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
