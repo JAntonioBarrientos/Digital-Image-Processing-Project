@@ -420,3 +420,77 @@ def apply_random_dithering():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+
+# Ruta para aplicar el filtro de dithering ordenado
+@image_controller.route('/apply-clustered-dithering', methods=['POST'])
+def apply_clustered_dithering():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+
+    # Procesar la imagen aplicando el filtro de dithering ordenado
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_clustered_dithering_filter()
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+
+# Ruta para aplicar el filtro de dithering disperso
+@image_controller.route('/apply-dispersed-dithering', methods=['POST'])
+def apply_dispersed_dithering():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+
+    # Procesar la imagen aplicando el filtro de dithering disperso
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_dispersed_dithering_filter()
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para aplicar el filtro de dithering Floyd-Steinberg
+@image_controller.route('/apply-floyd-steinberg-dithering', methods=['POST'])
+def apply_floyd_steinberg_dithering():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+
+    # Procesar la imagen aplicando el filtro de dithering Floyd-Steinberg
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_floyd_steinberg_dithering_filter()
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')

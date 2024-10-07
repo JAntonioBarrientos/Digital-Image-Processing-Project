@@ -14,6 +14,9 @@ from models.watermark.water_mark_filter import WatermarkFilter
 from models.watermark.water_mark_filter_diagonal import WatermarkFilterDiagonal
 from models.dithering.halftones_filter import HalftonesFilter
 from models.dithering.random_dithering_filter import RandomDitheringFilter
+from models.dithering.clustered_dithering import ClusteredDitheringFilter
+from models.dithering.dispersed_dithering import DispersedDitheringFilter
+from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 
 class ImageService:
     def __init__(self, image_file):
@@ -93,3 +96,17 @@ class ImageService:
     def apply_random_dithering_filter(self):
         random_dithering_filter = RandomDitheringFilter(self.image)
         return random_dithering_filter.apply_filter()
+
+    def apply_clustered_dithering_filter(self):
+        clustered_dithering_filter = ClusteredDitheringFilter(self.image)
+        return clustered_dithering_filter.apply_filter()
+
+    def apply_dispersed_dithering_filter(self):
+        dispersed_dithering_filter = DispersedDitheringFilter(self.image)
+        return dispersed_dithering_filter.apply_filter()
+
+    def apply_floyd_steinberg_dithering_filter(self):
+        floyd_steinberg_dithering_filter = FloydSteinbergDitheringFilter(self.image)
+        return floyd_steinberg_dithering_filter.apply_filter()
+
+

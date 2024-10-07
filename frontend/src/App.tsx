@@ -15,6 +15,9 @@ import WatermarkFilter from './filters/WatermarkFilter';
 import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
 import HalftoneFilter from './filters/HalftoneFilter';
 import RandomDithering from './filters/RandomDithering';
+import ClusteredDithering from './filters/ClusteredDithering';
+import DispersedDithering from './filters/DispersedDithering';
+import FloydSteinberg from './filters/FloydSteinberg';
 
 
 
@@ -120,6 +123,9 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('halftone')}>Semitonos</li>
               <li onClick={() => setSelectedFilter('random-dithering')}>Dithering azar</li>
+              <li onClick={() => setSelectedFilter('clustered-dithering')}>Dithering ordenado</li>
+              <li onClick={() => setSelectedFilter('dispersed-dithering')}>Dithering disperso</li>
+              <li onClick={() => setSelectedFilter('floyd-steinberg')}>Dithering Floyd-Steinberg</li>
             </ul>
           )}
         </div>
@@ -274,7 +280,32 @@ const App: React.FC = () => {
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
-            )}          
+            )}
+            {selectedImage && selectedFilter === 'clustered-dithering' && (
+              <ClusteredDithering
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'dispersed-dithering' && (
+              <DispersedDithering
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'floyd-steinberg' && (
+              <FloydSteinberg
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">
