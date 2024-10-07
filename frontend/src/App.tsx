@@ -14,6 +14,7 @@ import RecursiveColorFilter from './filters/RecursiveColorFilter';
 import WatermarkFilter from './filters/WatermarkFilter';
 import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
 import HalftoneFilter from './filters/HalftoneFilter';
+import RandomDithering from './filters/RandomDithering';
 
 
 
@@ -118,6 +119,7 @@ const App: React.FC = () => {
           {expandedCategory === 'tarea5' && (
             <ul>
               <li onClick={() => setSelectedFilter('halftone')}>Semitonos</li>
+              <li onClick={() => setSelectedFilter('random-dithering')}>Dithering azar</li>
             </ul>
           )}
         </div>
@@ -264,7 +266,15 @@ const App: React.FC = () => {
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
-            )}            
+            )}  
+            {selectedImage && selectedFilter === 'random-dithering' && (
+              <RandomDithering
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}          
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (
               <button onClick={downloadImage} className="download-button">

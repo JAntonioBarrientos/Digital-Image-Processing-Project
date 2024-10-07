@@ -5,32 +5,29 @@ import math
 
 class HalftonesFilter(BaseFilter):
 
-    def __init__(self, image, num_variations, grid_factor):
+    def __init__(self, image, num_variations, hd_flag):
         """
         Inicializa el filtro de imágenes recursivas con una imagen,
         calcula el tamaño de la cuadrícula en función del tamaño de la imagen y un factor de escala,
         y establece el número de variaciones en escala de grises.
 
         :param image: Objeto de imagen (PIL Image).
-        :param grid_factor: Factor por el cual se dividirá el ancho y altura de la imagen.
         :param num_variations: Número de versiones en escala de grises.
         """
-        super().__init__(image)
+        im_gray = GrayscaleFilter(image)
+        super().__init__(im_gray.apply_filter())
         
         # Obtener dimensiones originales de la imagen
         width, height = self.image.size
-        ## Calcular el upscale factor
-        upscale_factor = int(math.sqrt(grid_factor))
 
-        self.width = upscale_factor * width
-        self.height = upscale_factor * height
-        self.grid_width = self.width // grid_factor
-        self.grid_height = self.height // grid_factor
-        self.grid_factor = grid_factor
+        if(hd_flag):
+            self.width = num_variations * width 
+            self.height = num_variations * height 
+        else:
+            self.width = (num_variations * (width // num_variations))
+            self.height = (num_variations * (height // num_variations ))
 
-        # Validar el factor de cuadrícula esté en el rango correcto
-        if not (1 <= grid_factor <= min(width, height)):
-            raise ValueError("El factor de cuadrícula debe estar entre 1 y el alto o ancho de la imagen en píxeles") 
+        self.grid_dim = num_variations
 
         # Validar el número de variantes esté en el rango correcto
         if not (2 <= num_variations <= 256):
@@ -49,26 +46,26 @@ class HalftonesFilter(BaseFilter):
         versiones = {}
         
         # Calcular el radio máximo para los círculos (que depende del tamaño de la cuadrícula)
-        max_radius = self.grid_factor // 2
+        max_radius = self.num_variations
         
         # Calcular el salto en el tamaño del radio según el número de variaciones
         for i in range(self.num_variations):
             # Crear una imagen en blanco
-            circle_image = Image.new("RGB", (self.grid_width, self.grid_height), (255, 255, 255))
+            circle_image = Image.new("RGB", (self.num_variations, self.num_variations), (255, 255, 255))
             draw = ImageDraw.Draw(circle_image)
             
             # Calcular el radio del círculo
-            radius = max_radius * ((i + 1) / self.num_variations)
+            radius = max_radius * ((i) / self.num_variations)
             
             # Dibujar un círculo negro en el centro de la imagen
-            center_x, center_y = self.grid_width // 2, self.grid_height // 2
+            center_x, center_y = self.num_variations // 2, self.num_variations // 2
             draw.ellipse(
                 (center_x - radius, center_y - radius, center_x + radius, center_y + radius),
                 fill=(0, 0, 0)
             )
             
             # Asignar la imagen generada a su valor de brillo correspondiente (representativo)
-            versiones[i * (255 // self.num_variations)] = circle_image
+            versiones[(self.num_variations - (i+1)) * (255 // self.num_variations)] = circle_image
 
         return versiones
 
@@ -81,22 +78,22 @@ class HalftonesFilter(BaseFilter):
         gray_variations = self.get_palette()
 
         # Crear una imagen en blanco para la cuadrícula
-        recursive_image = Image.new("RGB", (self.grid_width*self.grid_factor, self.grid_height*self.grid_factor))
+        result_image = Image.new("RGB", (self.width, self.height))
 
         # Imagen escalada al tamaño de la cuadrícula
         image_upscaled = self.image.resize((self.width, self.height))
 
         # Iterar sobre cada cuadrícula
-        for i in range(0, self.grid_width*self.grid_factor, self.grid_width):
-            for j in range(0, self.grid_height*self.grid_factor, self.grid_height):
+        for i in range(0, self.width, self.grid_dim):
+            for j in range(0, self.height, self.grid_dim):
                 # Obtener el promedio del valor de brillo de la cuadrícula
                 avg_brightness = self.calculate_average_brightness(image_upscaled, i, j)
                 # Calcular el valor de escala de grises más cercano
                 grayscale_value = min(gray_variations, key=lambda x: abs(x - avg_brightness))
                 # Pegar la imagen correspondiente del diccionario de nuestra variaciones en la imagen recursiva
-                recursive_image.paste(gray_variations[grayscale_value], (i, j))
+                result_image.paste(gray_variations[grayscale_value], (i, j))
 
-        return recursive_image
+        return result_image
 
     def calculate_average_brightness(self, image, x, y):
         """
@@ -110,12 +107,12 @@ class HalftonesFilter(BaseFilter):
         total_brightness = 0
 
         # Iterar sobre la cuadrícula
-        for i in range(x, x + self.grid_width):
-            for j in range(y, y + self.grid_height):
+        for i in range(x, x + self.grid_dim):
+            for j in range(y, y + self.grid_dim):
                 # Obtener el valor de brillo (en escala de grises, r = g = b)
                 pixel = image.getpixel((i, j))
                 total_brightness += pixel[0]  # Solo necesitamos un canal, ya que es escala de grises
 
         # Calcular el promedio de los valores de brillo
-        total_pixels = self.grid_width * self.grid_height
+        total_pixels = self.grid_dim * self.grid_dim
         return total_brightness // total_pixels

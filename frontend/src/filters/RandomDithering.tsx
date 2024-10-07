@@ -10,8 +10,6 @@ interface HalftoneFilterProps {
 
 const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   // Valores por defecto para los inputs
-  const [nVariantes, setNVariantes] = useState<number>(8); // Valor por defecto de n_variantes
-  const [fullResolution, setFullResolution] = useState<boolean>(true); // Bandera para indicar si es HD
   const [errorMessage, setErrorMessage] = useState<string | null>(null);  // Estado para el mensaje de error
 
   // Función para aplicar el filtro de imagen recursiva en escala de grises
@@ -26,11 +24,9 @@ const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImage
 
     const formData = new FormData();
     formData.append('image', selectedImage);
-    formData.append('n_variantes', nVariantes.toString());
-    formData.append('full_resolution', fullResolution.toString());
 
     try {
-      const response = await fetch('http://localhost:5000/apply-halftones-filter', {
+      const response = await fetch('http://localhost:5000/apply-random-dithering', {
         method: 'POST',
         body: formData,
       });
@@ -55,31 +51,8 @@ const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImage
 
   return (
     <div>
-      <h3>Aplicar semitonos con puntos de distintos tamaños</h3>
-      <div>
-        <label>
-          Número de semitonos ({nVariantes}):
-          <input
-            type="number"
-            value={nVariantes}
-            onChange={(e) => setNVariantes(parseInt(e.target.value))}
-            min="2"
-            max="255"
-            style={{ width: '20%' }}
-          />
-        </label>
-        <label>
-          Resolución completa (Las dimensiones de la imagen se multiplicarán por las variantes):
-          <input
-            type="checkbox"
-            checked={fullResolution}
-            onChange={(e) => setFullResolution(e.target.checked)}
-            style={{ marginLeft: '10px' }}
-          />
-        </label>
-      </div>
       {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-      <button onClick={applyHalftoneFilter}>Aplicar Semitonos</button>
+      <button onClick={applyHalftoneFilter}>Aplicar Dithering aleatorio</button>
     </div>
   );
 };

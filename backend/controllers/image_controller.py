@@ -362,7 +362,6 @@ def apply_watermark_diagonal():
 
 
 # Ruta para aplicar el filtro de semitonos con circulos de varios tamaños
-
 @image_controller.route('/apply-halftones-filter', methods=['POST'])
 def apply_halftones_filter():
     if 'image' not in request.files:
@@ -376,17 +375,43 @@ def apply_halftones_filter():
     except (ValueError, KeyError):
         return jsonify({"error": "Valor inválido o faltante para 'n_variantes'"}), 400
 
+    # Obtener el valor de full_resolution desde el formulario
     try:
-        grid_factor = int(request.form['grid_factor'])
-    except ValueError:
-        grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
+        full_resolution = request.form['full_resolution'].lower() == 'true'
+    except KeyError:
+        full_resolution = False  # Valor por defecto si no se envía la bandera
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
     image_service = ImageService(image_file)
     try:
-        processed_image = image_service.apply_halftones_filter(n_variantes, grid_factor)
+        # Llamar al método de procesamiento con full_resolution en lugar de grid_factor
+        processed_image = image_service.apply_halftones_filter(n_variantes, full_resolution)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para aplicar el filtro de dithering aleatorio
+@image_controller.route('/apply-random-dithering', methods=['POST'])
+def apply_random_dithering():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+
+    # Procesar la imagen aplicando el filtro de dithering aleatorio
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_random_dithering_filter()
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
