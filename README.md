@@ -1,6 +1,6 @@
 # Digital Image Processing Project  
 
-**Tarea 4**
+**Tarea 5**
 
 **Alumno:** José Antonio Barrientos Sánchez
 
@@ -150,6 +150,7 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Imagenes recursivas en escala de grises
 - Imagenes recursivas en escala de grises ponderada
 - Crear marcas de agua
+- Dithering
 
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
@@ -158,6 +159,7 @@ backend/models/filters
 backend/models/convolutionFilters/filters
 backend/models/recursiveImages
 backend/models/watermark
+backend/models/dithering
 ```
 
 
