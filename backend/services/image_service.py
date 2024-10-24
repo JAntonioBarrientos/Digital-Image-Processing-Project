@@ -17,6 +17,7 @@ from models.dithering.random_dithering_filter import RandomDitheringFilter
 from models.dithering.clustered_dithering import ClusteredDitheringFilter
 from models.dithering.dispersed_dithering import DispersedDitheringFilter
 from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
+from models.oleo.oleo_filter import OleoFilter
 
 class ImageService:
     def __init__(self, image_file):
@@ -108,5 +109,9 @@ class ImageService:
     def apply_floyd_steinberg_dithering_filter(self):
         floyd_steinberg_dithering_filter = FloydSteinbergDitheringFilter(self.image)
         return floyd_steinberg_dithering_filter.apply_filter()
+
+    def apply_oleo_filter(self, color, blur, block_size):
+        oleo_filter = OleoFilter(self.image)
+        return oleo_filter.apply_filter(color, blur, block_size)
 
 

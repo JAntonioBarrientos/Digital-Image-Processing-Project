@@ -18,6 +18,7 @@ import RandomDithering from './filters/RandomDithering';
 import ClusteredDithering from './filters/ClusteredDithering';
 import DispersedDithering from './filters/DispersedDithering';
 import FloydSteinberg from './filters/FloydSteinberg';
+import OleoFilter from './filters/OleoFilter';
 
 
 
@@ -126,6 +127,16 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('clustered-dithering')}>Dithering ordenado</li>
               <li onClick={() => setSelectedFilter('dispersed-dithering')}>Dithering disperso</li>
               <li onClick={() => setSelectedFilter('floyd-steinberg')}>Dithering Floyd-Steinberg</li>
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea6' ? null : 'tarea6')}>
+            Tarea 6
+          </div>
+          {expandedCategory === 'tarea6' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('oleo')}>Filtro Oleo</li>
             </ul>
           )}
         </div>
@@ -299,6 +310,14 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'floyd-steinberg' && (
               <FloydSteinberg
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'oleo' && (
+              <OleoFilter
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}
