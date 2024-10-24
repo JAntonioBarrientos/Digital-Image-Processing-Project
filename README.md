@@ -151,7 +151,7 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Imagenes recursivas en escala de grises ponderada
 - Crear marcas de agua
 - Dithering
-- Filtro Oleo
+- Filtro Oleo a blanco y negro y color
 
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
