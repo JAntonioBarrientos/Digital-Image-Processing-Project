@@ -1,6 +1,6 @@
 # Digital Image Processing Project  
 
-**Tarea 6**
+**Tarea 7**
 
 **Alumno:** José Antonio Barrientos Sánchez
 
@@ -152,6 +152,7 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Crear marcas de agua
 - Dithering
 - Filtro Oleo a blanco y negro y color
+- Filtro de Erosión, máximo y mínimo.
 
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
