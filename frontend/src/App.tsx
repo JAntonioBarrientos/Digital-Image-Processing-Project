@@ -19,6 +19,8 @@ import ClusteredDithering from './filters/ClusteredDithering';
 import DispersedDithering from './filters/DispersedDithering';
 import FloydSteinberg from './filters/FloydSteinberg';
 import OleoFilter from './filters/OleoFilter';
+import MinFilter from './filters/MinFilter';
+import MaxFilter from './filters/MaxFilter';
 
 
 
@@ -137,6 +139,17 @@ const App: React.FC = () => {
           {expandedCategory === 'tarea6' && (
             <ul>
               <li onClick={() => setSelectedFilter('oleo')}>Filtro Oleo</li>
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea7' ? null : 'tarea7')}>
+            Tarea 7
+          </div>
+          {expandedCategory === 'tarea7' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('min')}>Filtro erosion Minimo</li>
+              <li onClick={() => setSelectedFilter('max')}>Filtro erosion Máximo</li> 
             </ul>
           )}
         </div>
@@ -318,6 +331,22 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'oleo' && (
               <OleoFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'min' && (
+              <MinFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'max' && (
+              <MaxFilter
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}

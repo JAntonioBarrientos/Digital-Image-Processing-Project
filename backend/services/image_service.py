@@ -18,6 +18,7 @@ from models.dithering.clustered_dithering import ClusteredDitheringFilter
 from models.dithering.dispersed_dithering import DispersedDitheringFilter
 from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 from models.oleo.oleo_filter import OleoFilter
+from models.erosion.min_max import MinMaxKernelFilter
 
 class ImageService:
     def __init__(self, image_file):
@@ -113,5 +114,9 @@ class ImageService:
     def apply_oleo_filter(self, color, blur, block_size):
         oleo_filter = OleoFilter(self.image)
         return oleo_filter.apply_filter(color, blur, block_size)
+    
+    def apply_min_max_filter(self, radius, mode):
+        min_max_filter = MinMaxKernelFilter(self.image)
+        return min_max_filter.apply_filter(radius, mode)
 
 

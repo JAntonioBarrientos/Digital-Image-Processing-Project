@@ -522,3 +522,55 @@ def apply_oleo_filter():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+
+# Ruta para aplicar el filtro de erosion minimo maximo
+@image_controller.route('/apply-min-filter', methods=['POST'])
+def apply_min_filter():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+    
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+    radius = int(request.form['radius'])
+
+    # Procesar la imagen aplicando el filtro minimo
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_min_max_filter(radius, 'min')
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+
+# Ruta para aplicar el filtro de erosión máximo
+@image_controller.route('/apply-max-filter', methods=['POST'])
+def apply_max_filter():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+    radius = int(request.form['radius'])
+
+    # Procesar la imagen aplicando el filtro máximo
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_min_max_filter(radius, 'max')
+    except Exception as e:
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
