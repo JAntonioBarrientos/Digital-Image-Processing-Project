@@ -574,3 +574,36 @@ def apply_max_filter():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para aplicar el filtro mosaico
+@image_controller.route('/apply-mosaic-filter', methods=['POST'])
+def apply_mosaic_filter():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image file uploaded"}), 400
+
+    # Obtener la imagen del formulario
+    image_file = request.files['image']
+
+    # Obtener los parámetros enviados en el formulario
+    try:
+        block_width = int(request.form.get('block_width', 10))
+        block_height = int(request.form.get('block_height', 10))
+        upscale_factor = int(request.form.get('upscale_factor', 1))
+    except ValueError:
+        return jsonify({"error": "Los parámetros deben ser números enteros"}), 400
+
+    # Procesar la imagen aplicando el filtro mosaico
+    image_service = ImageService(image_file)
+    try:
+        processed_image = image_service.apply_mosaic_filter(block_width, block_height, upscale_factor)
+    except Exception as e:
+        print("Error al aplicar el filtro: " + str(e))
+        return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')

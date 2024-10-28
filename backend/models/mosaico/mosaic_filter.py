@@ -1,0 +1,172 @@
+import os
+import csv
+import numpy as np
+from PIL import Image
+from models.base_filter import BaseFilter
+
+class MosaicFilter(BaseFilter):
+    def __init__(self, image, library_dir='data/image_library/', csv_file='data/average_colors.csv'):
+        """
+        Inicializa el filtro mosaico con la imagen objetivo, la ruta de la biblioteca de imágenes
+        y el archivo CSV donde se almacenarán los colores promedio.
+
+        :param image: Imagen objetivo (PIL Image).
+        :param library_dir: Ruta a la carpeta que contiene las imágenes de la biblioteca.
+        :param csv_file: Nombre del archivo CSV para almacenar los colores promedio.
+        """
+        super().__init__(image)
+
+        # Obtener la ruta absoluta al directorio base (backend/)
+        # __file__ está en /backend/models/mosaico/mosaic_filter.py
+        # Necesitamos subir tres niveles para llegar a /backend/
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # Construir rutas absolutas para la biblioteca de imágenes y el CSV
+        self.library_dir = os.path.join(base_dir, library_dir)
+        self.csv_file = os.path.join(base_dir, csv_file)
+
+
+        self.image_paths = []
+        self.library_colors = []
+        
+        # Verificar si el archivo CSV ya existe para evitar recalcular
+        if not os.path.exists(self.csv_file):
+            self.preprocess_image_library()
+        
+        self.load_library_data()
+
+    def preprocess_image_library(self):
+        """
+        Preprocesa las imágenes en la carpeta especificada, calcula el color promedio de cada imagen
+        y guarda los resultados en un archivo CSV.
+        """
+
+        # Lista para almacenar los datos de cada imagen
+        image_data = []
+
+        # Extensiones de archivos de imagen soportadas
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff')
+
+        # Recorrer todos los archivos en la carpeta y subcarpetas
+        for root, dirs, files in os.walk(self.library_dir):
+            for file in files:
+                if file.lower().endswith(valid_extensions):
+                    image_path = os.path.join(root, file)
+                    try:
+                        # Abrir la imagen y convertirla a RGB
+                        with Image.open(image_path) as img:
+                            img = img.convert('RGB')
+                            # Convertir la imagen a un arreglo NumPy
+                            img_array = np.array(img)
+                            # Calcular el color promedio
+                            avg_color = img_array.mean(axis=(0, 1)).astype(int)
+                            # Agregar los datos a la lista
+                            image_data.append({
+                                'image_path': image_path,
+                                'R': avg_color[0],
+                                'G': avg_color[1],
+                                'B': avg_color[2]
+                            })
+                    except Exception as e:
+                        print(f"Error al procesar {image_path}: {e}")
+
+        # Guardar los datos en un archivo CSV
+        with open(self.csv_file, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['image_path', 'R', 'G', 'B']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for data in image_data:
+                writer.writerow(data)
+
+        print(f"Preprocesamiento completado. Datos guardados en {self.csv_file}")
+
+    def load_library_data(self):
+        """
+        Carga los datos de colores promedio y rutas de imágenes desde el archivo CSV.
+        """
+        colors = []
+        image_paths = []
+        with open(self.csv_file, 'r', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                colors.append([int(row['R']), int(row['G']), int(row['B'])])
+                image_paths.append(row['image_path'])
+        self.library_colors = np.array(colors)
+        self.image_paths = image_paths
+        print("Datos de la biblioteca cargados exitosamente.")
+
+    def find_closest_image(self, avg_color):
+        """
+        Encuentra la imagen en la biblioteca cuyo color promedio es el más cercano al color dado,
+        iterando sobre todas las opciones y calculando la distancia euclidiana.
+
+        :param avg_color: Color promedio del bloque (lista o arreglo de tres enteros).
+        :return: Ruta a la imagen más cercana.
+        """
+        min_distance = float('inf')
+        closest_image_path = None
+
+        # Convertir avg_color a un arreglo NumPy
+        avg_color = np.array(avg_color)
+
+        # Iterar sobre todos los colores en la biblioteca
+        for idx, lib_color in enumerate(self.library_colors):
+            # Calcular la distancia euclidiana
+            distance = np.linalg.norm(avg_color - lib_color)
+            if distance < min_distance:
+                min_distance = distance
+                closest_image_path = self.image_paths[idx]
+
+        return closest_image_path
+
+    def apply_filter(self, block_width, block_height, upscale_factor):
+        """
+        Aplica el filtro mosaico a la imagen objetivo.
+
+        :param block_width: Ancho de cada bloque en píxeles.
+        :param block_height: Alto de cada bloque en píxeles.
+        :param upscale_factor: Factor de ampliación de la imagen final.
+        :return: Imagen procesada (PIL Image).
+        """
+        if block_width <= 0 or block_height <= 0:
+            raise ValueError("Las dimensiones del bloque deben ser enteros positivos.")
+
+        if upscale_factor <= 0:
+            raise ValueError("El factor de ampliación debe ser un entero positivo.")
+
+        # Convertir la imagen a RGB si no lo está
+        img = self.image.convert('RGB')
+
+        # Ampliar la imagen según el upscale_factor
+        original_width, original_height = img.size
+        new_width = original_width * upscale_factor
+        new_height = original_height * upscale_factor
+        img = img.resize((new_width, new_height), Image.NEAREST)
+
+        image_array = np.array(img)
+        height, width, _ = image_array.shape
+
+        # Crear una nueva imagen para el resultado
+        processed_image = Image.new('RGB', (width, height))
+
+        # Iterar sobre los bloques
+        for y in range(0, height, block_height):
+            for x in range(0, width, block_width):
+                # Definir el bloque
+                block = image_array[y:y+block_height, x:x+block_width]
+                if block.size == 0:
+                    continue  # Si el bloque está vacío, continuar
+                # Calcular el color promedio del bloque
+                avg_color = block.mean(axis=(0, 1)).astype(int)
+                # Encontrar la imagen más cercana en la biblioteca
+                closest_image_path = self.find_closest_image(avg_color)
+                if closest_image_path is None:
+                    continue  # Si no se encuentra una imagen, omitir el bloque
+                # Abrir la imagen seleccionada
+                with Image.open(closest_image_path) as tile_img:
+                    # Redimensionar la imagen al tamaño del bloque
+                    tile_img = tile_img.resize((block.shape[1], block.shape[0]))
+                    # Pegar la imagen en la posición correspondiente
+                    processed_image.paste(tile_img, (x, y))
+
+        return processed_image

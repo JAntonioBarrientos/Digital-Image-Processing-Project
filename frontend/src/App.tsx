@@ -21,6 +21,7 @@ import FloydSteinberg from './filters/FloydSteinberg';
 import OleoFilter from './filters/OleoFilter';
 import MinFilter from './filters/MinFilter';
 import MaxFilter from './filters/MaxFilter';
+import MosaicFilter from './filters/MosaicFilter';
 
 
 
@@ -150,6 +151,16 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('min')}>Filtro erosion Minimo</li>
               <li onClick={() => setSelectedFilter('max')}>Filtro erosion Máximo</li> 
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'proyecto' ? null : 'proyecto')}>
+            Mosaicos
+          </div>
+          {expandedCategory === 'proyecto' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('mosaicos')}>Filtro Mosaicos</li>
             </ul>
           )}
         </div>
@@ -353,6 +364,16 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
+            {selectedImage && selectedFilter === 'mosaicos' && (
+              <MosaicFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+
+
 
             {/* Botón para descargar la imagen procesada */}
             {processedImageUrl && (

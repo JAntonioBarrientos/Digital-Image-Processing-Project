@@ -19,6 +19,7 @@ from models.dithering.dispersed_dithering import DispersedDitheringFilter
 from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 from models.oleo.oleo_filter import OleoFilter
 from models.erosion.min_max import MinMaxKernelFilter
+from models.mosaico.mosaic_filter import MosaicFilter
 
 class ImageService:
     def __init__(self, image_file):
@@ -118,5 +119,10 @@ class ImageService:
     def apply_min_max_filter(self, radius, mode):
         min_max_filter = MinMaxKernelFilter(self.image)
         return min_max_filter.apply_filter(radius, mode)
+
+
+    def apply_mosaic_filter(self, block_width, block_height, upscale_factor):
+        mosaic_filter = MosaicFilter(self.image)
+        return mosaic_filter.apply_filter(block_width, block_height, upscale_factor)
 
 
