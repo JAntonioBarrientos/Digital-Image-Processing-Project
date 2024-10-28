@@ -2,6 +2,9 @@
 venv/
 *.pyc
 __pycache__/
+*.pyo
+*.pyd
+.env
 
 # Ignorar los archivos generados por npm y node_modules
 node_modules/
@@ -17,3 +20,6 @@ Thumbs.db
 # Ignorar configuraciones específicas de IDEs
 .vscode/
 .idea/
+
+# Ignorar los datos para mosaicos
+backend/data/
