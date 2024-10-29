@@ -11,6 +11,7 @@ import sys
 from scipy.spatial import cKDTree  # Importar cKDTree para KD-Tree eficiente
 from typing import Optional, Dict, Tuple, List
 from functools import lru_cache
+import gc
 
 
 # Variables globales para el KD-Tree y las rutas de imágenes
@@ -115,7 +116,7 @@ def process_block(args: Tuple[Tuple[int, int, int, int], np.ndarray]) -> Tuple[i
         return (x, y, None)  # Bloque vacío
 
     # Calcular el color promedio del bloque en BGR
-    avg_color = block.mean(axis=(0, 1)).astype(int)  # BGR
+    avg_color = tuple(block.mean(axis=(0, 1)).astype(int))  # Convertir a tupla para caché
 
     # Usar el KD-Tree global para encontrar la imagen más cercana
     if global_kdtree is not None:
@@ -267,11 +268,16 @@ class MosaicFilter(BaseFilter):
             # Leer el CSV con pandas, especificando los tipos de datos para optimizar la lectura
             df: pd.DataFrame = pd.read_csv(
                 self.csv_file,
-                dtype={'image_path': str, 'B': np.int32, 'G': np.int32, 'R': np.int32}
+                dtype={'image_path': str, 'B': np.float32, 'G': np.float32, 'R': np.float32}
             )
 
+            # Verificar que las columnas necesarias existen
+            required_columns = {'image_path', 'B', 'G', 'R'}
+            if not required_columns.issubset(df.columns):
+                raise ValueError(f"El CSV debe contener las columnas: {required_columns}")
+
             # Asignar los datos a los atributos de la clase
-            self.library_colors: np.ndarray = df[['B', 'G', 'R']].to_numpy()
+            self.library_colors: np.ndarray = df[['B', 'G', 'R']].to_numpy(dtype=np.float32)
             self.image_paths: List[str] = df['image_path'].tolist()
 
             # Construir el KD-Tree usando cKDTree para mayor eficiencia
@@ -316,7 +322,6 @@ class MosaicFilter(BaseFilter):
                     closest_image_path = self.image_paths[idx]
 
             return closest_image_path  # type: ignore
-
 
     def apply_filter(self, block_width: int, block_height: int, upscale_factor: int) -> Image.Image:
         """
@@ -398,6 +403,10 @@ class MosaicFilter(BaseFilter):
 
                 # Pegar el tile en la imagen final
                 final_image[y:y+expected_height, x:x+expected_width] = resized_tile
+
+        # Liberar memoria innecesaria
+        del resized_image
+        gc.collect()
 
         # Convertir la imagen final de BGR a RGB para PIL
         final_image = cv2.cvtColor(final_image, cv2.COLOR_BGR2RGB)
