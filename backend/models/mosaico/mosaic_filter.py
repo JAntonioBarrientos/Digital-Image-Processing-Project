@@ -6,7 +6,26 @@ from models.base_filter import BaseFilter
 import time
 import pandas as pd
 from multiprocessing import Pool, cpu_count
+import contextlib
+import sys
+from scipy.spatial import cKDTree  # Importar cKDTree para KD-Tree eficiente para obtener vecino mas cercano.
 
+# Variables globales para el KD-Tree y las rutas de imágenes
+global_kdtree = None
+global_image_paths = []
+
+def init_worker(kdtree, image_paths):
+    """
+    Inicializador para cada proceso del Pool de multiprocessing.
+    Establece el KD-Tree y las rutas de imágenes como variables globales en cada proceso.
+    
+    :param kdtree: Objeto cKDTree construido a partir de library_colors.
+    :param image_paths: Lista de rutas de imágenes de la biblioteca.
+    """
+    global global_kdtree
+    global global_image_paths
+    global_kdtree = kdtree
+    global_image_paths = image_paths
 
 def calculate_average_color(image_path):
     """
@@ -22,7 +41,9 @@ def calculate_average_color(image_path):
             img_pil.verify()  # Esto no carga la imagen pero verifica su integridad
         
         # Si la verificación pasó, cargar la imagen con OpenCV
-        img = cv2.imread(image_path)
+        with open(os.devnull, 'w') as devnull:
+            with contextlib.redirect_stderr(devnull):
+                img = cv2.imread(image_path)
 
         if img is None:
             print(f"Error al cargar la imagen {image_path} con OpenCV.")
@@ -39,29 +60,25 @@ def calculate_average_color(image_path):
             'R': int(avg_color[2])
         }
     except (UnidentifiedImageError, IOError) as e:
-        #print(f"Image verification failed for {image_path}: {e}")
         return None
     except Exception as e:
         print(f"Error al procesar {image_path}: {e}")
         return None
 
 
-
 def process_block(args):
     """
     Procesa un bloque de la imagen para aplicar el filtro mosaico.
-
+    
     :param args: Tuple que contiene:
                  - block_coords: (x, y, block_width, block_height)
                  - resized_image: Arreglo NumPy de la imagen redimensionada.
-                 - library_colors: Arreglo NumPy de colores promedio de la biblioteca.
-                 - image_paths: Lista de rutas de imágenes de la biblioteca.
     :return: Tuple que contiene:
              - x: Coordenada x del bloque.
              - y: Coordenada y del bloque.
              - resized_tile: Arreglo NumPy de la imagen de la biblioteca redimensionada.
     """
-    block_coords, resized_image, library_colors, image_paths = args
+    block_coords, resized_image = args
     x, y, block_width, block_height = block_coords
 
     # Extraer el bloque de la imagen
@@ -72,13 +89,20 @@ def process_block(args):
     # Calcular el color promedio del bloque en BGR
     avg_color = block.mean(axis=(0, 1)).astype(int)  # BGR
 
-    # Encontrar la imagen más cercana en la biblioteca
-    distances = np.linalg.norm(library_colors - avg_color, axis=1)
-    min_index = np.argmin(distances)
-    closest_image_path = image_paths[min_index]
+    # Usar el KD-Tree global para encontrar la imagen más cercana
+    if global_kdtree is not None:
+        distance, min_index = global_kdtree.query(avg_color)
+        closest_image_path = global_image_paths[min_index]
+    else:
+        # Si el KD-Tree no está disponible, retornar None
+        print("KD-Tree no está disponible.")
+        return (x, y, None)
 
     # Cargar la imagen de la biblioteca usando OpenCV
-    tile_img = cv2.imread(closest_image_path)
+    with open(os.devnull, 'w') as devnull:
+        with contextlib.redirect_stderr(devnull):
+            tile_img = cv2.imread(closest_image_path)
+
     if tile_img is None:
         print(f"Error al cargar la imagen de la biblioteca: {closest_image_path}")
         return (x, y, None)
@@ -118,6 +142,7 @@ class MosaicFilter(BaseFilter):
 
         self.image_paths = []
         self.library_colors = []
+        self.corrupted_images = []  # Lista para almacenar imágenes corruptas
 
         # Asegurar que el directorio para el CSV existe
         os.makedirs(os.path.dirname(self.csv_file), exist_ok=True)
@@ -178,6 +203,13 @@ class MosaicFilter(BaseFilter):
             print(f"Se encontraron {len(corrupted_images)} imágenes corruptas:")
             for img in corrupted_images:
                 print(f" - {img}")
+
+            # Guardar las imágenes corruptas en un archivo log (opcional)
+            log_path = os.path.join(os.path.dirname(self.csv_file), 'corrupted_images.log')
+            with open(log_path, 'w') as log_file:
+                for img in corrupted_images:
+                    log_file.write(f"{img}\n")
+            print(f"Lista de imágenes corruptas guardadas en {log_path}")
         else:
             print("No se encontraron imágenes corruptas.")
 
@@ -194,19 +226,21 @@ class MosaicFilter(BaseFilter):
 
         # Guardar las imágenes corruptas en un archivo log (opcional)
         if corrupted_images:
-            log_path = os.path.join(os.path.dirname(self.csv_file), 'corrupted_images.log')
-            with open(log_path, 'w') as log_file:
-                for img in corrupted_images:
-                    log_file.write(f"{img}\n")
-            print(f"Lista de imágenes corruptas guardadas en {log_path}")
-
-        end_time = time.perf_counter()  # Fin del tiempo total
-        elapsed_time = end_time - start_time
-        print(f"Preprocesamiento de la biblioteca completado en {elapsed_time:.4f} segundos.")
+            corrupted_dir = os.path.join(os.path.dirname(self.csv_file), 'corrupted_images')
+            os.makedirs(corrupted_dir, exist_ok=True)
+            for img in corrupted_images:
+                try:
+                    basename = os.path.basename(img)
+                    destination = os.path.join(corrupted_dir, basename)
+                    os.rename(img, destination)
+                    print(f"Moviendo {img} a {destination}")
+                except Exception as e:
+                    print(f"Error al mover {img} a {corrupted_dir}: {e}")
 
     def load_library_data(self):
         """
         Carga los datos de colores promedio y rutas de imágenes desde el archivo CSV utilizando pandas.
+        Además, construye un KD-Tree para búsquedas rápidas.
         """
         start_time = time.perf_counter()  # Inicio del tiempo
 
@@ -218,11 +252,15 @@ class MosaicFilter(BaseFilter):
             self.library_colors = df[['B', 'G', 'R']].to_numpy()
             self.image_paths = df['image_path'].tolist()
 
-            print("Datos de la biblioteca cargados exitosamente.")
+            # Construir el KD-Tree usando cKDTree para mayor eficiencia
+            self.kdtree = cKDTree(self.library_colors)
+
+            print("Datos de la biblioteca cargados exitosamente y KD-Tree construido.")
         except Exception as e:
             print(f"Error al cargar los datos de la biblioteca: {e}")
             self.library_colors = np.array([])
             self.image_paths = []
+            self.kdtree = None
 
         end_time = time.perf_counter()  # Fin del tiempo
         elapsed_time = end_time - start_time
@@ -231,26 +269,31 @@ class MosaicFilter(BaseFilter):
     def find_closest_image(self, avg_color):
         """
         Encuentra la imagen en la biblioteca cuyo color promedio es el más cercano al color dado,
-        iterando sobre todas las opciones y calculando la distancia euclidiana.
+        utilizando un KD-Tree para mejorar la eficiencia.
 
         :param avg_color: Color promedio del bloque (arreglo de tres enteros B, G, R).
         :return: Ruta a la imagen más cercana.
         """
-        min_distance = float('inf')
-        closest_image_path = None
+        if self.kdtree is not None:
+            distance, index = self.kdtree.query(avg_color)
+            return self.image_paths[index]
+        else:
+            # Fallback a la implementación original si el KD-Tree no está disponible
+            min_distance = float('inf')
+            closest_image_path = None
 
-        # Convertir avg_color a un arreglo NumPy
-        avg_color = np.array(avg_color)
+            # Convertir avg_color a un arreglo NumPy
+            avg_color = np.array(avg_color)
 
-        # Iterar sobre todos los colores en la biblioteca
-        for idx, lib_color in enumerate(self.library_colors):
-            # Calcular la distancia euclidiana
-            distance = np.linalg.norm(avg_color - lib_color)
-            if distance < min_distance:
-                min_distance = distance
-                closest_image_path = self.image_paths[idx]
+            # Iterar sobre todos los colores en la biblioteca
+            for idx, lib_color in enumerate(self.library_colors):
+                # Calcular la distancia euclidiana
+                distance = np.linalg.norm(avg_color - lib_color)
+                if distance < min_distance:
+                    min_distance = distance
+                    closest_image_path = self.image_paths[idx]
 
-        return closest_image_path
+            return closest_image_path
 
     def apply_filter(self, block_width, block_height, upscale_factor):
         """
@@ -287,15 +330,23 @@ class MosaicFilter(BaseFilter):
             for x in range(0, width, block_width):
                 current_block_width = min(block_width, width - x)
                 current_block_height = min(block_height, height - y)
-                blocks.append(((x, y, current_block_width, current_block_height), resized_image, self.library_colors, self.image_paths))
+                blocks.append(((x, y, current_block_width, current_block_height), resized_image))
 
         print(f"Total de bloques a procesar: {len(blocks)}")
 
-        # Utilizar Pool de multiprocessing para procesar bloques en paralelo
+        # Crear el KD-Tree y las rutas de imágenes para los procesos
+        kdtree = self.kdtree
+        image_paths = self.image_paths
+
+        if kdtree is None:
+            print("KD-Tree no está disponible. No se puede aplicar el filtro.")
+            return self.image
+
+        # Inicializar el Pool de multiprocessing con el KD-Tree
         num_processes = cpu_count()
         print(f"Usando {num_processes} procesos para el procesamiento de bloques.")
 
-        with Pool(processes=num_processes) as pool:
+        with Pool(processes=num_processes, initializer=init_worker, initargs=(kdtree, image_paths)) as pool:
             # Mapear la función process_block a todas las coordenadas de bloques
             results = pool.map(process_block, blocks)
 

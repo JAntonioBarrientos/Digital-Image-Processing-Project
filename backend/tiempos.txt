@@ -1,27 +1,7 @@
-x6 50 y 50
+x10 50 y 50
 
-Total de imágenes a procesar: 10021
-Usando 8 procesos para el preprocesamiento.
-Guardado en DataFrame y escritura en CSV completados en 10.6568 segundos.
-Preprocesamiento completado. Datos guardados en /home/antonio/gitHubRepos/soloProjects/Digital-Image-Processing-Project/backend/data/average_colors.csv
-Preprocesamiento de la biblioteca completado en 10.6568 segundos.
-Datos de la biblioteca cargados exitosamente.
-Carga de datos de la biblioteca completada en 0.0177 segundos.
-Inicialización de MosaicFilter completada en 10.6761 segundos.
-Total de bloques a procesar: 5220
-Usando 8 procesos para el procesamiento de bloques.
-apply_filter completado en 7.5396 segundos.
+apply_filter completado en 50.7442 segundos.
 
 
-Inicialización de MosaicFilter completada en 103.6202 segundos.
-Total de bloques a procesar: 7140
-Usando 8 procesos para el procesamiento de bloques.
-Premature end of JPEG file
-Premature end of JPEG file
-Premature end of JPEG file
-Premature end of JPEG file
-Premature end of JPEG file
-Premature end of JPEG file
-apply_filter completado en 21.7115 segundos.
-127.0.0.1 - - [29/Oct/2024 00:44:43] "POST /ap
+
 
