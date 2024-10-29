@@ -1,7 +1,7 @@
 import os
 import cv2  # Importar OpenCV
 import numpy as np
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from models.base_filter import BaseFilter
 import time
 import pandas as pd
@@ -10,18 +10,22 @@ from multiprocessing import Pool, cpu_count
 
 def calculate_average_color(image_path):
     """
-    Calcula el color promedio de una imagen.
-
+    Calcula el color promedio de una imagen después de verificar su integridad con PIL.
+    
     :param image_path: Ruta completa a la imagen.
     :return: Diccionario con la ruta de la imagen y sus valores promedio de B, G, R.
              Retorna None si hay un error al procesar la imagen.
     """
     try:
-        # Cargar la imagen usando OpenCV
+        # Verificar la integridad de la imagen con PIL
+        with Image.open(image_path) as img_pil:
+            img_pil.verify()  # Esto no carga la imagen pero verifica su integridad
+        
+        # Si la verificación pasó, cargar la imagen con OpenCV
         img = cv2.imread(image_path)
 
         if img is None:
-            print(f"Error al cargar la imagen {image_path}. Posiblemente está corrupta o el formato no es soportado.")
+            print(f"Error al cargar la imagen {image_path} con OpenCV.")
             return None
 
         # Calcular el color promedio en BGR
@@ -34,9 +38,13 @@ def calculate_average_color(image_path):
             'G': int(avg_color[1]),
             'R': int(avg_color[2])
         }
+    except (UnidentifiedImageError, IOError) as e:
+        #print(f"Image verification failed for {image_path}: {e}")
+        return None
     except Exception as e:
         print(f"Error al procesar {image_path}: {e}")
         return None
+
 
 
 def process_block(args):
@@ -129,6 +137,7 @@ class MosaicFilter(BaseFilter):
         Preprocesa las imágenes en la carpeta especificada, calcula el color promedio de cada imagen
         y guarda los resultados en un archivo CSV utilizando OpenCV y pandas de manera más eficiente.
         Esta versión utiliza multiprocessing para procesar imágenes en paralelo.
+        También registra imágenes corruptas que no pudieron ser procesadas.
         """
         start_time = time.perf_counter()  # Inicio del tiempo
 
@@ -155,8 +164,22 @@ class MosaicFilter(BaseFilter):
             # Mapear la función calculate_average_color a todas las rutas de imágenes
             results = pool.map(calculate_average_color, image_paths)
 
-        # Filtrar resultados exitosos (no None)
-        image_data = [res for res in results if res is not None]
+        # Filtrar resultados exitosos (no None) y recopilar imágenes corruptas
+        image_data = []
+        corrupted_images = []
+        for img_path, res in zip(image_paths, results):
+            if res is not None:
+                image_data.append(res)
+            else:
+                corrupted_images.append(img_path)
+
+        # Registrar imágenes corruptas
+        if corrupted_images:
+            print(f"Se encontraron {len(corrupted_images)} imágenes corruptas:")
+            for img in corrupted_images:
+                print(f" - {img}")
+        else:
+            print("No se encontraron imágenes corruptas.")
 
         # Crear un DataFrame y guardar en CSV usando pandas
         df = pd.DataFrame(image_data)
@@ -167,6 +190,15 @@ class MosaicFilter(BaseFilter):
         print(f"Guardado en DataFrame y escritura en CSV completados en {elapsed_timeD:.4f} segundos.")
 
         print(f"Preprocesamiento completado. Datos guardados en {self.csv_file}")
+        print(f"Tiempo total de preprocesamiento: {elapsed_timeD:.4f} segundos.")
+
+        # Guardar las imágenes corruptas en un archivo log (opcional)
+        if corrupted_images:
+            log_path = os.path.join(os.path.dirname(self.csv_file), 'corrupted_images.log')
+            with open(log_path, 'w') as log_file:
+                for img in corrupted_images:
+                    log_file.write(f"{img}\n")
+            print(f"Lista de imágenes corruptas guardadas en {log_path}")
 
         end_time = time.perf_counter()  # Fin del tiempo total
         elapsed_time = end_time - start_time

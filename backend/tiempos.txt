@@ -13,3 +13,15 @@ Usando 8 procesos para el procesamiento de bloques.
 apply_filter completado en 7.5396 segundos.
 
 
+Inicialización de MosaicFilter completada en 103.6202 segundos.
+Total de bloques a procesar: 7140
+Usando 8 procesos para el procesamiento de bloques.
+Premature end of JPEG file
+Premature end of JPEG file
+Premature end of JPEG file
+Premature end of JPEG file
+Premature end of JPEG file
+Premature end of JPEG file
+apply_filter completado en 21.7115 segundos.
+127.0.0.1 - - [29/Oct/2024 00:44:43] "POST /ap
+
