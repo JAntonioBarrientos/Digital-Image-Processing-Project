@@ -1,9 +1,12 @@
+import cv2  # Importar OpenCV
 import os
 import csv
 import numpy as np
 from PIL import Image
 from models.base_filter import BaseFilter
-import time  
+import time 
+import pandas as pd  
+
 
 class MosaicFilter(BaseFilter):
     def __init__(self, image, library_dir='data/image_library/', csv_file='data/average_colors.csv'):
@@ -46,16 +49,15 @@ class MosaicFilter(BaseFilter):
     def preprocess_image_library(self):
         """
         Preprocesa las imágenes en la carpeta especificada, calcula el color promedio de cada imagen
-        y guarda los resultados en un archivo CSV.
+        y guarda los resultados en un archivo CSV utilizando OpenCV y pandas de manera más eficiente.
         """
-
         start_time = time.perf_counter()  # Inicio del tiempo
-
-        # Lista para almacenar los datos de cada imagen
-        image_data = []
 
         # Extensiones de archivos de imagen soportadas
         valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff')
+
+        # Lista para almacenar los datos de cada imagen
+        image_data = []
 
         # Recorrer todos los archivos en la carpeta y subcarpetas
         for root, dirs, files in os.walk(self.library_dir):
@@ -63,34 +65,38 @@ class MosaicFilter(BaseFilter):
                 if file.lower().endswith(valid_extensions):
                     image_path = os.path.join(root, file)
                     try:
-                        # Abrir la imagen y convertirla a RGB
-                        with Image.open(image_path) as img:
-                            img = img.convert('RGB')
-                            # Convertir la imagen a un arreglo NumPy
-                            img_array = np.array(img)
-                            # Calcular el color promedio
-                            avg_color = img_array.mean(axis=(0, 1)).astype(int)
-                            # Agregar los datos a la lista
-                            image_data.append({
-                                'image_path': image_path,
-                                'R': avg_color[0],
-                                'G': avg_color[1],
-                                'B': avg_color[2]
-                            })
+                        # Cargar la imagen usando OpenCV
+                        img = cv2.imread(image_path)
+
+                        if img is None:
+                            print(f"Error al cargar la imagen {image_path}. Posiblemente está corrupta o el formato no es soportado.")
+                            continue
+
+                        # Calcular el color promedio
+                        avg_color_per_row = np.average(img, axis=0)
+                        avg_color = np.average(avg_color_per_row, axis=0).astype(int)  # Promedio en 3 canales
+
+                        # Agregar los datos a la lista
+                        image_data.append({
+                            'image_path': image_path,
+                            'R': avg_color[2],  # OpenCV usa BGR, así que R es el índice 2
+                            'G': avg_color[1],
+                            'B': avg_color[0]
+                        })
                     except Exception as e:
                         print(f"Error al procesar {image_path}: {e}")
 
-        # Guardar los datos en un archivo CSV
-        with open(self.csv_file, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['image_path', 'R', 'G', 'B']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for data in image_data:
-                writer.writerow(data)
+        # Crear un DataFrame y guardar en CSV usando pandas
+        df = pd.DataFrame(image_data)
+        df.to_csv(self.csv_file, index=False)
+
+        end_timeData = time.perf_counter()  # Fin del tiempo de escritura
+        elapsed_timeD = end_timeData - start_time
+        print(f"Guardado en data frame en {elapsed_timeD:.4f} segundos.")
 
         print(f"Preprocesamiento completado. Datos guardados en {self.csv_file}")
-                
-        end_time = time.perf_counter()  
+
+        end_time = time.perf_counter()  # Fin del tiempo total
         elapsed_time = end_time - start_time
         print(f"Preprocesamiento de la biblioteca completado en {elapsed_time:.4f} segundos.")
 
