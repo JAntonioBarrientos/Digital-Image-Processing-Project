@@ -3,6 +3,7 @@ import csv
 import numpy as np
 from PIL import Image
 from models.base_filter import BaseFilter
+import time  
 
 class MosaicFilter(BaseFilter):
     def __init__(self, image, library_dir='data/image_library/', csv_file='data/average_colors.csv'):
@@ -14,6 +15,8 @@ class MosaicFilter(BaseFilter):
         :param library_dir: Ruta a la carpeta que contiene las imágenes de la biblioteca.
         :param csv_file: Nombre del archivo CSV para almacenar los colores promedio.
         """
+        start_time = time.perf_counter()  
+
         super().__init__(image)
 
         # Obtener la ruta absoluta al directorio base (backend/)
@@ -35,11 +38,18 @@ class MosaicFilter(BaseFilter):
         
         self.load_library_data()
 
+        end_time = time.perf_counter()  # Fin del tiempo
+        elapsed_time = end_time - start_time
+        print(f"Inicialización de MosaicFilter completada en {elapsed_time:.4f} segundos.")
+
+
     def preprocess_image_library(self):
         """
         Preprocesa las imágenes en la carpeta especificada, calcula el color promedio de cada imagen
         y guarda los resultados en un archivo CSV.
         """
+
+        start_time = time.perf_counter()  # Inicio del tiempo
 
         # Lista para almacenar los datos de cada imagen
         image_data = []
@@ -79,11 +89,18 @@ class MosaicFilter(BaseFilter):
                 writer.writerow(data)
 
         print(f"Preprocesamiento completado. Datos guardados en {self.csv_file}")
+                
+        end_time = time.perf_counter()  
+        elapsed_time = end_time - start_time
+        print(f"Preprocesamiento de la biblioteca completado en {elapsed_time:.4f} segundos.")
+
 
     def load_library_data(self):
         """
         Carga los datos de colores promedio y rutas de imágenes desde el archivo CSV.
         """
+        start_time = time.perf_counter()  # Inicio del tiempo
+
         colors = []
         image_paths = []
         with open(self.csv_file, 'r', encoding='utf-8') as csvfile:
@@ -94,6 +111,11 @@ class MosaicFilter(BaseFilter):
         self.library_colors = np.array(colors)
         self.image_paths = image_paths
         print("Datos de la biblioteca cargados exitosamente.")
+
+        end_time = time.perf_counter()  # Fin del tiempo
+        elapsed_time = end_time - start_time
+        print(f"Carga de datos de la biblioteca completada en {elapsed_time:.4f} segundos.")
+
 
     def find_closest_image(self, avg_color):
         """
@@ -128,6 +150,8 @@ class MosaicFilter(BaseFilter):
         :param upscale_factor: Factor de ampliación de la imagen final.
         :return: Imagen procesada (PIL Image).
         """
+        start_time = time.perf_counter()  # Inicio del tiempo total del método
+
         if block_width <= 0 or block_height <= 0:
             raise ValueError("Las dimensiones del bloque deben ser enteros positivos.")
 
@@ -149,6 +173,11 @@ class MosaicFilter(BaseFilter):
         # Crear una nueva imagen para el resultado
         processed_image = Image.new('RGB', (width, height))
 
+
+        # Iniciar el tiempo de procesamiento de bloques
+        blocks_start_time = time.perf_counter()
+
+
         # Iterar sobre los bloques
         for y in range(0, height, block_height):
             for x in range(0, width, block_width):
@@ -168,5 +197,15 @@ class MosaicFilter(BaseFilter):
                     tile_img = tile_img.resize((block.shape[1], block.shape[0]))
                     # Pegar la imagen en la posición correspondiente
                     processed_image.paste(tile_img, (x, y))
+        
+        # Fin del tiempo de procesamiento de bloques
+        blocks_end_time = time.perf_counter()
+        blocks_elapsed_time = blocks_end_time - blocks_start_time
+        print(f"Procesamiento de bloques completado en {blocks_elapsed_time:.4f} segundos.")
+
+        end_time = time.perf_counter()  # Fin del tiempo total del método
+        elapsed_time = end_time - start_time
+        print(f"apply_filter completado en {elapsed_time:.4f} segundos.")
+
 
         return processed_image

@@ -1,0 +1,9 @@
+x2 50 y 50
+Preprocesamiento de la biblioteca completado en 358.6718 segundos.
+Datos de la biblioteca cargados exitosamente.
+Carga de datos de la biblioteca completada en 0.0705 segundos.
+Inicialización de MosaicFilter completada en 358.7458 segundos.
+Procesamiento de bloques completado en 57.9295 segundos.
+apply_filter completado en 57.9542 segundos.
+
+
