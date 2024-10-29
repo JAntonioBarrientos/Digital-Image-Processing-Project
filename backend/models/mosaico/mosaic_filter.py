@@ -24,7 +24,7 @@ def calculate_average_color(image_path):
         if img is None:
             print(f"Error al cargar la imagen {image_path}. Posiblemente está corrupta o el formato no es soportado.")
             return None
-            
+
         avg_color_per_row = np.average(img, axis=0)
         avg_color = np.average(avg_color_per_row, axis=0).astype(int)  # Promedio en 3 canales
 
@@ -125,23 +125,25 @@ class MosaicFilter(BaseFilter):
         elapsed_time = end_time - start_time
         print(f"Preprocesamiento de la biblioteca completado en {elapsed_time:.4f} segundos.")
 
-
     def load_library_data(self):
         """
-        Carga los datos de colores promedio y rutas de imágenes desde el archivo CSV.
+        Carga los datos de colores promedio y rutas de imágenes desde el archivo CSV utilizando pandas.
         """
         start_time = time.perf_counter()  # Inicio del tiempo
 
-        colors = []
-        image_paths = []
-        with open(self.csv_file, 'r', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                colors.append([int(row['R']), int(row['G']), int(row['B'])])
-                image_paths.append(row['image_path'])
-        self.library_colors = np.array(colors)
-        self.image_paths = image_paths
-        print("Datos de la biblioteca cargados exitosamente.")
+        try:
+            # Leer el CSV con pandas, especificando los tipos de datos para optimizar la lectura
+            df = pd.read_csv(self.csv_file, dtype={'image_path': str, 'R': np.int32, 'G': np.int32, 'B': np.int32})
+
+            # Asignar los datos a los atributos de la clase
+            self.library_colors = df[['R', 'G', 'B']].to_numpy()
+            self.image_paths = df['image_path'].tolist()
+
+            print("Datos de la biblioteca cargados exitosamente.")
+        except Exception as e:
+            print(f"Error al cargar los datos de la biblioteca: {e}")
+            self.library_colors = np.array([])
+            self.image_paths = []
 
         end_time = time.perf_counter()  # Fin del tiempo
         elapsed_time = end_time - start_time
