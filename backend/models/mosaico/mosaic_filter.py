@@ -6,7 +6,7 @@ from PIL import Image
 from models.base_filter import BaseFilter
 import time 
 import pandas as pd  
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class MosaicFilter(BaseFilter):
     def __init__(self, image, library_dir='data/image_library/', csv_file='data/average_colors.csv'):
@@ -50,41 +50,66 @@ class MosaicFilter(BaseFilter):
         """
         Preprocesa las imágenes en la carpeta especificada, calcula el color promedio de cada imagen
         y guarda los resultados en un archivo CSV utilizando OpenCV y pandas de manera más eficiente.
+        Esta versión utiliza multithreading para procesar imágenes en paralelo.
         """
         start_time = time.perf_counter()  # Inicio del tiempo
 
         # Extensiones de archivos de imagen soportadas
         valid_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff')
 
-        # Lista para almacenar los datos de cada imagen
-        image_data = []
+        # Lista para almacenar las rutas de imágenes válidas
+        image_paths = []
 
         # Recorrer todos los archivos en la carpeta y subcarpetas
         for root, dirs, files in os.walk(self.library_dir):
             for file in files:
                 if file.lower().endswith(valid_extensions):
                     image_path = os.path.join(root, file)
-                    try:
-                        # Cargar la imagen usando OpenCV
-                        img = cv2.imread(image_path)
+                    image_paths.append(image_path)
 
-                        if img is None:
-                            print(f"Error al cargar la imagen {image_path}. Posiblemente está corrupta o el formato no es soportado.")
-                            continue
+        print(f"Total de imágenes a procesar: {len(image_paths)}")
 
-                        # Calcular el color promedio
-                        avg_color_per_row = np.average(img, axis=0)
-                        avg_color = np.average(avg_color_per_row, axis=0).astype(int)  # Promedio en 3 canales
+        # Lista para almacenar los datos de cada imagen
+        image_data = []
 
-                        # Agregar los datos a la lista
-                        image_data.append({
-                            'image_path': image_path,
-                            'R': avg_color[2],  # OpenCV usa BGR, así que R es el índice 2
-                            'G': avg_color[1],
-                            'B': avg_color[0]
-                        })
-                    except Exception as e:
-                        print(f"Error al procesar {image_path}: {e}")
+        # Definir una función para procesar una sola imagen
+        def process_image(image_path):
+            try:
+                # Cargar la imagen usando OpenCV
+                img = cv2.imread(image_path)
+
+                if img is None:
+                    print(f"Error al cargar la imagen {image_path}. Posiblemente está corrupta o el formato no es soportado.")
+                    return None
+
+                # No es necesario convertir BGR a RGB ya que solo calculamos el promedio
+                # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+                # Calcular el color promedio
+                avg_color_per_row = np.average(img, axis=0)
+                avg_color = np.average(avg_color_per_row, axis=0).astype(int)  # Promedio en 3 canales
+
+                return {
+                    'image_path': image_path,
+                    'R': avg_color[2],  # OpenCV usa BGR, así que R es el índice 2
+                    'G': avg_color[1],
+                    'B': avg_color[0]
+                }
+            except Exception as e:
+                print(f"Error al procesar {image_path}: {e}")
+                return None
+
+        # Utilizar ThreadPoolExecutor para procesar imágenes en paralelo
+        max_workers = min(32, os.cpu_count() + 4)  # Definir el número de hilos
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Enviar todas las tareas al pool
+            future_to_image = {executor.submit(process_image, path): path for path in image_paths}
+
+            # Recoger los resultados a medida que se completan
+            for future in as_completed(future_to_image):
+                result = future.result()
+                if result is not None:
+                    image_data.append(result)
 
         # Crear un DataFrame y guardar en CSV usando pandas
         df = pd.DataFrame(image_data)
