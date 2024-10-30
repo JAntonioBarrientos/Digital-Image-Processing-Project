@@ -1,4 +1,4 @@
-from models.mosaic_filter import MosaicFilter
+from models.mosaico.mosaic_filter import MosaicFilter
 from PIL import Image
 
 def initialize_csv():

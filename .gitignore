@@ -21,5 +21,18 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Ignorar los datos para mosaicos
-backend/data/
+# Ignorar todo en backend/data/
+backend/data/*
+
+# No ignorar el directorio image_library/
+!backend/data/image_library/
+
+#No ignorar el readme
+!backend/data/README.md
+
+
+# Ignorar todo dentro de image_library/, excepto los archivos .gitkeep
+backend/data/image_library/*
+
+# No ignorar los archivos .gitkeep en image_library/
+!backend/data/image_library/.gitkeep
