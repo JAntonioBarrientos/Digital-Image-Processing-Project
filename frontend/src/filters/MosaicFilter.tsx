@@ -92,10 +92,11 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       )}
 
       <label>
-        Factor de Ampliación (Upscale Factor):
+        Factor de Ampliación apartir de la original (Upscale Factor): {upscaleFactor}
         <input
-          type="number"
-          min="0"
+          type="range"
+          min="1"
+          max="20"
           value={upscaleFactor}
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}

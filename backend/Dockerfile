@@ -23,12 +23,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 6. Copiar el resto del código de la app (excluyendo data/ gracias a .dockerignore)
 COPY . .
 
-# 7. Copiar el script de entrada
-COPY entrypoint.sh .
-
-# 8. Establecer el script de entrada
-ENTRYPOINT ["./entrypoint.sh"]
-
 # 9. Exponer el puerto en el contenedor (5000 por defecto en Flask)
 EXPOSE 5000
 
