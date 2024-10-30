@@ -13,6 +13,8 @@ from typing import Optional, Dict, Tuple, List
 from functools import lru_cache
 import gc
 
+from status import preprocessing_status
+
 
 # Variables globales para el KD-Tree y las rutas de imágenes
 global_kdtree: Optional[cKDTree] = None
@@ -169,7 +171,12 @@ class MosaicFilter(BaseFilter):
 
         # Verificar si el archivo CSV ya existe para evitar recalcular
         if not os.path.exists(self.csv_file):
-            self.preprocess_image_library()
+            preprocessing_status.set_preprocessing(True)  # Indicar que comienza el preprocesamiento
+            try:
+                self.preprocess_image_library()
+            finally:
+                preprocessing_status.set_preprocessing(False)  # Indicar que finaliza el preprocesamiento
+
 
         self.load_library_data()
 

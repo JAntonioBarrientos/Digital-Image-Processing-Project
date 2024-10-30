@@ -5,6 +5,7 @@ interface MosaicFilterProps {
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
+  isProcessing: boolean; // Agregar isProcessing como prop
 }
 
 const MosaicFilter: React.FC<MosaicFilterProps> = ({
@@ -12,16 +13,39 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
   setImagePreview,
   setProcessedImageUrl,
   setIsProcessing,
+  isProcessing, // Usar isProcessing como prop
 }) => {
   const [blockWidth, setBlockWidth] = useState<number>(50);
   const [blockHeight, setBlockHeight] = useState<number>(50);
   const [upscaleFactor, setUpscaleFactor] = useState<number>(4);
+  const [isBackendPreprocessing, setIsBackendPreprocessing] = useState<boolean>(false);
 
   useEffect(() => {
-    // Si necesitas cargar datos al montar el componente, puedes hacerlo aquí
+    const checkBackendStatus = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/status');
+        if (!response.ok) {
+          throw new Error('Error al consultar el estado del backend');
+        }
+        const data = await response.json();
+        setIsBackendPreprocessing(data.preprocessing); // Cambiado aquí
+      } catch (error) {
+        console.error('Error al consultar el estado del backend:', error);
+      }
+    };
+  
+    checkBackendStatus();
+    const interval = setInterval(checkBackendStatus, 5000); // Cada 5 segundos
+    return () => clearInterval(interval);
   }, []);
+  
 
   const applyFilter = async () => {
+    if (isBackendPreprocessing) {
+      alert('El backend está preprocesando la biblioteca de imágenes. Por favor, intenta de nuevo más tarde.');
+      return;
+    }
+
     if (!selectedImage) {
       alert('Por favor, selecciona una imagen primero.');
       return;
@@ -51,6 +75,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro de Mosaico:', error);
+      alert('Hubo un error al aplicar el filtro de Mosaico. Por favor, intenta de nuevo.');
     } finally {
       setIsProcessing(false);
     }
@@ -59,13 +84,21 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
   return (
     <div>
       <h3>Aplicar Filtro de Mosaico</h3>
+
+      {isBackendPreprocessing && (
+        <div style={{ color: 'blue', marginBottom: '10px' }}>
+          La biblioteca de imágenes está siendo preprocesada. Por favor, espera...
+        </div>
+      )}
+
       <label>
         Factor de Ampliación (Upscale Factor):
         <input
           type="number"
-          min="1"
+          min="0"
           value={upscaleFactor}
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
+          disabled={isBackendPreprocessing}
         />
       </label>
       <br />
@@ -73,9 +106,10 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         Tamaño del Bloque (Ancho en píxeles):
         <input
           type="number"
-          min="1"
+          min="0"
           value={blockWidth}
           onChange={(e) => setBlockWidth(parseInt(e.target.value) || 1)}
+          disabled={isBackendPreprocessing}
         />
       </label>
       <br />
@@ -83,13 +117,16 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         Tamaño del Bloque (Alto en píxeles):
         <input
           type="number"
-          min="1"
+          min="0"
           value={blockHeight}
           onChange={(e) => setBlockHeight(parseInt(e.target.value) || 1)}
+          disabled={isBackendPreprocessing}
         />
       </label>
       <br />
-      <button onClick={applyFilter}>Aplicar Filtro de Mosaico</button>
+      <button onClick={applyFilter} disabled={isBackendPreprocessing || isProcessing}>
+        {isProcessing ? 'Procesando' : 'Aplicar Filtro de Mosaico'}
+      </button>
     </div>
   );
 };

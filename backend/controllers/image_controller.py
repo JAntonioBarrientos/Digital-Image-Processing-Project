@@ -1,10 +1,18 @@
 from flask import Blueprint, request, send_file
 from services.image_service import ImageService
 from io import BytesIO
-from flask import jsonify
+from flask import Flask, jsonify, request
+from status import preprocessing_status
 
 # Definir el controlador como un Blueprint para manejar las rutas de la imagen
 image_controller = Blueprint('image_controller', __name__)
+
+@image_controller.route('/status', methods=['GET'])
+def get_status():
+    return jsonify({
+        'preprocessing': preprocessing_status.get_preprocessing()
+    })
+
 
 # Ruta para aplicar el filtro de escala de grises
 @image_controller.route('/apply-grayscale', methods=['POST'])

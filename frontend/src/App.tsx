@@ -370,6 +370,7 @@ const App: React.FC = () => {
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
+                isProcessing={isProcessing} // Pasar isProcessing como prop
               />
             )}
 
