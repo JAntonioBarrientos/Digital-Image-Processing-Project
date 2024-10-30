@@ -16,8 +16,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copiar el resto del código de la app
 COPY . .
 
-# 6. Exponer el puerto en el contenedor (5000 por defecto en Flask)
+# 7. Ejecutar el script de inicialización para crear el .csv
+RUN python init_data.py
+
+# 8. Exponer el puerto en el contenedor (5000 por defecto en Flask)
 EXPOSE 5000
 
-# 7. Comando por defecto para ejecutar Flask
+# 9. Comando por defecto para ejecutar Flask
 CMD ["python", "app.py"]
