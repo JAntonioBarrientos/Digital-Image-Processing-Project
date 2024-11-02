@@ -24,12 +24,9 @@ class GrayscaleFilter(BaseFilter):
             gray_blocks = pool.map(self._process_block, blocks)
         
         # Combinar los bloques procesados
-        gray_array = np.vstack(gray_blocks)  # Forma: (altura_total, ancho, 3)
+        gray_array = np.vstack(gray_blocks) 
         
-        # **Eliminar la siguiente línea redundante:**
-        # gray_array_rgb = np.repeat(gray_array[:, :, np.newaxis], 3, axis=2)
-        
-        # **Usar directamente gray_array para crear la imagen PIL**
+        # Usar directamente gray_array para crear la imagen PIL
         gray_image_rgb = Image.fromarray(gray_array, mode='RGB')
         
         return gray_image_rgb

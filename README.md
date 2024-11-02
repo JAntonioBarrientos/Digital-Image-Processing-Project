@@ -4,14 +4,13 @@
 
 **No. de Cuenta:** 423019269
 
-
-Este proyecto es una aplicación web para el procesamiento digital de imágenes, construida utilizando **React** para el frontend y **Flask** para el backend. Permite a los usuarios cargar imágenes, aplicar filtros como escala de grises, filtros ponderados y más.
+Este proyecto es una aplicación web para el procesamiento digital de imágenes del curso de Procesamiento Digital de Imágenes de la Facultad de Ciencias UNAM semestre 2025-1.
 
 ## Características
 
 - Aplicación web construida con **React** y **Flask**.
-- Soporte para varios filtros de procesamiento de imágenes.
 - Desplegable usando **Docker** y **Docker Compose** para asegurar portabilidad.
+- Optimizado para rendimiento utilizando **multiprocessing** y **vectorización** en Python.
 
 ## Requisitos
 
@@ -31,23 +30,29 @@ cd Digital-Image-Processing-Project
 
 ```
 
+## Incluir imagenes para FILTRO MOSAICO (PROYECTO)
+
+Las imagenes con las que se alimenta el filtro mosaico se deben colocar en la carpeta:
+    
+```
+     backend/models/data/image_library/
+```
+
+Para mas información sobre el filtro mosaico, revisar el archivo:
+
+[documentacion-implementacion/Proyecto.md](documentacion-implementacion/Proyecto.md)
+
+
 ## Ejecutar el proyecto con Docker
 
 Este proyecto está preparado para ejecutarse utilizando Docker Compose. Sigue los pasos a continuación para poner en marcha el frontend (React) y el backend (Flask) en contenedores de Docker.
 
-1. Construir las imágenes de Docker
-En el directorio raíz del proyecto, donde se encuentra el archivo docker-compose.yml, ejecuta el siguiente comando para construir las imágenes de Docker:
+En el directorio raíz del proyecto, donde se encuentra el archivo docker-compose.yml, ejecuta el siguiente comando para construir las imágenes de Docker e iniciar los contenedores:
 
 ```bash
-docker compose build
+docker compose up --build
 ```
 
-2. Iniciar los contenedores de Docker
-Una vez que las imágenes de Docker se hayan construido correctamente, ejecuta el siguiente comando para iniciar los contenedores de Docker:
-
-```bash
-docker compose up
-```
 
 3. Acceder a la aplicación
 Una vez que los contenedores de Docker se hayan iniciado correctamente, puedes acceder a la aplicación web en tu navegador web visitando la siguiente URL:
@@ -134,11 +139,33 @@ python app.py
 
 ## Implementación de filtros
 
+Los algoritmos fueron implementados desde cero en Python apoyandonos de operaciones vectorizadas y multiprocessing para mejorar el rendimiento de los filtros incluidas en las librerías de Python como OpenCV y Numpy.
+
+La explicación detallada de cada filtro, su pseudocódigo y su implementación en Python se encuentra en la carpeta: `documentacion-implementacion/`
+
+- [documentacion-implementacion/Proyecto.md](documentacion-implementacion/Proyecto.md)
+
+- [documentacion-implementacion/Tarea1.md](documentacion-implementacion/Tarea1.md)
+
+- [documentacion-implementacion/Tarea2.md](documentacion-implementacion/Tarea2.md)
+
+- [documentacion-implementacion/Tarea3.md](documentacion-implementacion/Tarea3.md)
+
+- [documentacion-implementacion/Tarea4.md](documentacion-implementacion/Tarea4.md)
+
+- [documentacion-implementacion/Tarea5.md](documentacion-implementacion/Tarea5.md)
+
+- [documentacion-implementacion/Tarea6.md](documentacion-implementacion/Tarea6.md)
+
+- [documentacion-implementacion/Tarea7.md](documentacion-implementacion/Tarea7.md)
+
+- [documentacion-implementacion/Tarea8.md](documentacion-implementacion/Tarea8.md)
+
+- [documentacion-implementacion/Tarea9.md](documentacion-implementacion/Tarea9.md)
+
+
 La aplicación web admite varios filtros de procesamiento de imágenes que se pueden aplicar a las imágenes cargadas. Los filtros disponibles actualmente son:
 
-- Escala de grises
-- Escala de grises ponderada
-- Efecto mica RGB
 - Efecto Blur
 - Efecto Motion Blur
 - Efecto Sharpen
@@ -151,10 +178,4 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 - Dithering
 - Filtro Oleo a blanco y negro y color
 - Filtro de Erosión, máximo y mínimo.
-
-Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
-
-```
-backend/models/
-```
 
