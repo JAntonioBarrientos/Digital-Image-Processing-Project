@@ -156,7 +156,7 @@ const App: React.FC = () => {
         </div>
         <div className="category">
           <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'proyecto' ? null : 'proyecto')}>
-            Mosaicos
+            Proyecto
           </div>
           {expandedCategory === 'proyecto' && (
             <ul>

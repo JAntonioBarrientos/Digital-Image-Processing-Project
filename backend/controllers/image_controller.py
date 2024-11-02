@@ -3,6 +3,10 @@ from services.image_service import ImageService
 from io import BytesIO
 from flask import Flask, jsonify, request
 from status import preprocessing_status
+from models.mosaico.mosaic_filter import MosaicFilter
+import os
+from PIL import Image
+
 
 # Definir el controlador como un Blueprint para manejar las rutas de la imagen
 image_controller = Blueprint('image_controller', __name__)
@@ -615,3 +619,16 @@ def apply_mosaic_filter():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+# Ruta para reiniciar el preprocesamiento de la biblioteca de imágenes
+@image_controller.route('/reset-preprocessing', methods=['POST'])
+def reset_preprocessing():
+    mosaic_filter = MosaicFilter(Image.new('RGB', (1, 1), color='white'))
+    try:
+        if os.path.exists(mosaic_filter.csv_file):
+            os.remove(mosaic_filter.csv_file)  # Eliminar el archivo CSV
+        mosaic_filter = MosaicFilter(Image.new('RGB', (1, 1), color='white')) # Ejecutar el preprocesamiento nuevamente
+        return jsonify({"status": "Preprocesamiento reiniciado"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+

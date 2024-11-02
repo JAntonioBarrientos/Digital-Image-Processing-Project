@@ -5,7 +5,7 @@ interface MosaicFilterProps {
   setImagePreview: (url: string) => void;
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
-  isProcessing: boolean; // Agregar isProcessing como prop
+  isProcessing: boolean;
 }
 
 const MosaicFilter: React.FC<MosaicFilterProps> = ({
@@ -13,10 +13,10 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
   setImagePreview,
   setProcessedImageUrl,
   setIsProcessing,
-  isProcessing, // Usar isProcessing como prop
+  isProcessing,
 }) => {
-  const [blockWidth, setBlockWidth] = useState<number>(50);
-  const [blockHeight, setBlockHeight] = useState<number>(50);
+  const [blockWidth, setBlockWidth] = useState<number>(60);
+  const [blockHeight, setBlockHeight] = useState<number>(60);
   const [upscaleFactor, setUpscaleFactor] = useState<number>(4);
   const [isBackendPreprocessing, setIsBackendPreprocessing] = useState<boolean>(false);
 
@@ -28,17 +28,16 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
           throw new Error('Error al consultar el estado del backend');
         }
         const data = await response.json();
-        setIsBackendPreprocessing(data.preprocessing); // Cambiado aquí
+        setIsBackendPreprocessing(data.preprocessing);
       } catch (error) {
         console.error('Error al consultar el estado del backend:', error);
       }
     };
-  
+
     checkBackendStatus();
     const interval = setInterval(checkBackendStatus, 5000); // Cada 5 segundos
     return () => clearInterval(interval);
   }, []);
-  
 
   const applyFilter = async () => {
     if (isBackendPreprocessing) {
@@ -81,6 +80,22 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
     }
   };
 
+  const resetPreprocessing = async () => {
+    setIsBackendPreprocessing(true); // Cambia a true mientras se reinicia el preprocesamiento
+    try {
+      const response = await fetch('http://localhost:5000/reset-preprocessing', {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error('Error al reiniciar el preprocesamiento');
+      }
+      alert('Preprocesamiento reiniciado. El backend está procesando la biblioteca de imágenes.');
+    } catch (error) {
+      console.error('Error al reiniciar el preprocesamiento:', error);
+      alert('Hubo un error al reiniciar el preprocesamiento. Por favor, intenta de nuevo.');
+    }
+  };
+
   return (
     <div>
       <h3>Aplicar Filtro de Mosaico</h3>
@@ -92,11 +107,11 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       )}
 
       <label>
-        Factor de Ampliación apartir de la original (Upscale Factor): {upscaleFactor}
+        Factor de Ampliación a partir de la original (Upscale Factor): {upscaleFactor}
         <input
           type="range"
           min="1"
-          max="20"
+          max="12"
           value={upscaleFactor}
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}
@@ -107,7 +122,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         Tamaño del Bloque (Ancho en píxeles):
         <input
           type="number"
-          min="0"
+          min="1"
           value={blockWidth}
           onChange={(e) => setBlockWidth(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}
@@ -118,7 +133,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         Tamaño del Bloque (Alto en píxeles):
         <input
           type="number"
-          min="0"
+          min="1"
           value={blockHeight}
           onChange={(e) => setBlockHeight(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}
@@ -127,6 +142,10 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       <br />
       <button onClick={applyFilter} disabled={isBackendPreprocessing || isProcessing}>
         {isProcessing ? 'Procesando' : 'Aplicar Filtro de Mosaico'}
+      </button>
+      <br />
+      <button onClick={resetPreprocessing} disabled={isBackendPreprocessing}>
+        Reiniciar Preprocesamiento
       </button>
     </div>
   );

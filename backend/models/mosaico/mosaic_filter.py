@@ -1,5 +1,5 @@
 import os
-import cv2  # Importar OpenCV
+import cv2  
 import numpy as np
 from PIL import Image, UnidentifiedImageError
 from models.base_filter import BaseFilter

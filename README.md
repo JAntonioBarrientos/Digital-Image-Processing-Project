@@ -1,7 +1,5 @@
 # Digital Image Processing Project  
 
-**Tarea 7**
-
 **Alumno:** José Antonio Barrientos Sánchez
 
 **No. de Cuenta:** 423019269
@@ -75,7 +73,7 @@ Si prefieres ejecutar el proyecto sin Docker, puedes seguir los pasos a continua
 
 Primero, asegúrate de tener Node.js y npm instalados en tu máquina. Luego, sigue los pasos a continuación para ejecutar el frontend (React) en tu máquina local:
 
-1. avega al directorio frontend/ en el proyecto:
+1. Navega al directorio frontend/ en el proyecto:
 
 ```bash
 cd frontend/
@@ -157,11 +155,6 @@ La aplicación web admite varios filtros de procesamiento de imágenes que se pu
 Los algoritmos fueron implementados desde cero en Python y se pueden encontrar en el directorio:
 
 ```
-backend/models/filters
-backend/models/convolutionFilters/filters
-backend/models/recursiveImages
-backend/models/watermark
-backend/models/dithering
+backend/models/
 ```
-
 
