@@ -74,7 +74,8 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro de Mosaico:', error);
-      alert('Hubo un error al aplicar el filtro de Mosaico. Por favor, intenta de nuevo.');
+      alert('Hubo un error al aplicar el filtro de Mosaico. Por favor, intenta de nuevo con un valor mas pequeño del Upscale Factor.');
+      alert('Reinicie la aplicación para intentar de nuevo.');
     } finally {
       setIsProcessing(false);
     }
@@ -107,7 +108,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       )}
 
       <label>
-        Factor de Ampliación a partir de la original (Upscale Factor): {upscaleFactor}
+        <b>Upscale Factor de las dimensiones: {upscaleFactor}</b> <br />
         <input
           type="range"
           min="1"
@@ -116,10 +117,13 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}
         />
+        <b>Advertencia:</b> Valores altos pueden causar que la imagen <br />
+        procesada sea muy grande y si no es suficiente la <br />
+        memoria RAM, el navegador puede congelarse. <br />
       </label>
       <br />
       <label>
-        Tamaño del Bloque (Ancho en píxeles):
+        <b>Tamaño del Bloque (Ancho en píxeles):</b>
         <input
           type="number"
           min="1"
@@ -130,7 +134,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       </label>
       <br />
       <label>
-        Tamaño del Bloque (Alto en píxeles):
+        <b>Tamaño del Bloque (Alto en píxeles):</b>
         <input
           type="number"
           min="1"
@@ -144,6 +148,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         {isProcessing ? 'Procesando' : 'Aplicar Filtro de Mosaico'}
       </button>
       <br />
+      <b>En caso de haber agregado nuevas imagenes a la biblioteca:</b> <br />
       <button onClick={resetPreprocessing} disabled={isBackendPreprocessing}>
         Reiniciar Preprocesamiento
       </button>
