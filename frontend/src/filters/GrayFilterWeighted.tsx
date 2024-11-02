@@ -40,7 +40,7 @@ const GrayFilterWeighted: React.FC<FilterProps> = ({ selectedImage, setImagePrev
     }
   };
 
-  return <button onClick={applyFilter}>Aplicar Filtro Ponderado</button>;
+  return <button onClick={applyFilter}>Aplicar Filtro Gris Ponderado</button>;
 };
 
 export default GrayFilterWeighted;

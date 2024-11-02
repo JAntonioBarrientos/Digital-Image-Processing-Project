@@ -111,7 +111,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
         <input
           type="range"
           min="1"
-          max="12"
+          max="8"
           value={upscaleFactor}
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}

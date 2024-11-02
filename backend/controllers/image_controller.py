@@ -6,7 +6,7 @@ from status import preprocessing_status
 from models.mosaico.mosaic_filter import MosaicFilter
 import os
 from PIL import Image
-
+import time
 
 # Definir el controlador como un Blueprint para manejar las rutas de la imagen
 image_controller = Blueprint('image_controller', __name__)
@@ -25,8 +25,18 @@ def apply_grayscale():
         return "No image file uploaded", 400
     
     image_file = request.files['image']
+
+    # Medir el tiempo de procesamiento
+    start_time = time.time()
+
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_grayscale_filter()
+
+    # Calcular el tiempo transcurrido
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de procesamiento del filtro grayscale: {elapsed_time:.2f} segundos")
+
 
     img_io = BytesIO()
     processed_image.save(img_io, 'JPEG')
@@ -41,8 +51,14 @@ def apply_gray_weighted():
         return "No image file uploaded", 400
     
     image_file = request.files['image']
+
+    start_time = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_gray_filter_weighted()
+
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de procesamiento del filtro grayscale weighted: {elapsed_time:.2f} segundos")
 
     img_io = BytesIO()
     processed_image.save(img_io, 'JPEG')
@@ -69,8 +85,13 @@ def apply_mica_filter():
         return "Los valores de RGB deben estar entre 0 y 255", 400
     
     image_file = request.files['image']
+
+    time_start = time.time()
     image_service = ImageService(image_file)
     processed_image = image_service.apply_mica_filter(r_value, g_value, b_value)
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro mica: {elapsed_time:.2f} segundos")
 
     img_io = BytesIO()
     processed_image.save(img_io, 'JPEG')
@@ -98,8 +119,13 @@ def apply_blur():
         return "La intensidad debe estar entre 1 y 25", 400
 
     # Procesar la imagen aplicando el filtro de Blur
+    start_time = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_blur_filter(intensity)
+
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de procesamiento del filtro blur: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -128,8 +154,13 @@ def apply_custom_diagonal_filter():
         return "La intensidad debe estar entre 1 y 25", 400
 
     # Procesar la imagen aplicando el filtro diagonal personalizado
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_custom_diagonal_filter(intensity)
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro diagonal personalizado: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -148,8 +179,13 @@ def apply_find_edges():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de detección de bordes
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_find_edges_filter()
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de detección de bordes: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -168,8 +204,13 @@ def apply_sharpen():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de afilado
+
+    time_start = time.time()
     image_service = ImageService(image_file)
     processed_image = image_service.apply_sharpen_filter()
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de afilado: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -189,8 +230,12 @@ def apply_emboss():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de Emboss
+    time_start = time.time()
     image_service = ImageService(image_file)
     processed_image = image_service.apply_emboss_filter()
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de emboss: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -209,9 +254,13 @@ def apply_mean_filter():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de promedio
+
+    time_start = time.time()
     image_service = ImageService(image_file)
     processed_image = image_service.apply_mean_filter()
 
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de promedio: {elapsed_time:.2f} segundos")
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
     processed_image.save(img_io, 'JPEG')
@@ -241,11 +290,16 @@ def apply_recursive_image_gray():
         grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_recursive_gray_filter(n_variantes, grid_factor)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de imagen recursiva escala de grises: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -271,11 +325,16 @@ def apply_recursive_image_color():
         grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_recursive_color_filter(grid_factor)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de imagen recursiva color: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -321,8 +380,13 @@ def apply_watermark():
         return jsonify({"error": "Tamaño de fuente inválido o faltante"}), 400
 
     # Procesar la imagen aplicando el filtro de marca de agua
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_watermark_filter(texto, coordenadas, alpha, tamaño_fuente)
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de marca de agua: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -361,8 +425,13 @@ def apply_watermark_diagonal():
         return jsonify({"error": "Tamaño de fuente inválido o faltante"}), 400
 
     # Procesar la imagen aplicando el filtro de marca de agua
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     processed_image = image_service.apply_watermark_diagonal_filter(texto, alpha, tamaño_fuente)
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de marca de agua diagonal: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -394,12 +463,17 @@ def apply_halftones_filter():
         full_resolution = False  # Valor por defecto si no se envía la bandera
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         # Llamar al método de procesamiento con full_resolution en lugar de grid_factor
         processed_image = image_service.apply_halftones_filter(n_variantes, full_resolution)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de semitonos: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -419,11 +493,16 @@ def apply_random_dithering():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de dithering aleatorio
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_random_dithering_filter()
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de dithering aleatorio: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -444,11 +523,16 @@ def apply_clustered_dithering():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de dithering ordenado
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_clustered_dithering_filter()
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de dithering ordenado: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -469,11 +553,16 @@ def apply_dispersed_dithering():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de dithering disperso
+    start_time = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_dispersed_dithering_filter()
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de procesamiento del filtro de dithering disperso: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -493,11 +582,16 @@ def apply_floyd_steinberg_dithering():
     image_file = request.files['image']
 
     # Procesar la imagen aplicando el filtro de dithering Floyd-Steinberg
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_floyd_steinberg_dithering_filter()
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de dithering Floyd-Steinberg: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -521,11 +615,16 @@ def apply_oleo_filter():
     block_size = int(request.form['blockSize'])
 
     # Procesar la imagen aplicando el filtro de Oleo
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_oleo_filter(color, blur, block_size)
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de Oleo: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -547,11 +646,15 @@ def apply_min_filter():
     radius = int(request.form['radius'])
 
     # Procesar la imagen aplicando el filtro minimo
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_min_max_filter(radius, 'min')
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -573,11 +676,16 @@ def apply_max_filter():
     radius = int(request.form['radius'])
 
     # Procesar la imagen aplicando el filtro máximo
+    time_start = time.time()
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_min_max_filter(radius, 'max')
     except Exception as e:
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
+
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de erosión máximo: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -605,6 +713,7 @@ def apply_mosaic_filter():
         return jsonify({"error": "Los parámetros deben ser números enteros"}), 400
 
     # Procesar la imagen aplicando el filtro mosaico
+
     image_service = ImageService(image_file)
     try:
         processed_image = image_service.apply_mosaic_filter(block_width, block_height, upscale_factor)
