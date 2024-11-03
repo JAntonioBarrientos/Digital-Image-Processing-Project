@@ -12,7 +12,7 @@ const OleoFilter: React.FC<OleoFilterProps> = ({ selectedImage, setImagePreview,
   // Valores por defecto para los inputs
   const [color, setColor] = useState<boolean>(false); // Valor por defecto de color
   const [blur, setBlur] = useState<boolean>(false); // Valor por defecto de blur
-  const [blockSize, setBlockSize] = useState<number>(7); // Valor por defecto de blockSize
+  const [blockSize, setBlockSize] = useState<number>(20); // Valor por defecto de blockSize
   const [errorMessage, setErrorMessage] = useState<string | null>(null);  // Estado para el mensaje de error
 
   // Función para aplicar  el filtro de imagen de oleo

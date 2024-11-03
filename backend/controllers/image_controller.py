@@ -733,6 +733,7 @@ def apply_min_filter():
         return jsonify({"error": "Error al aplicar el filtro: " + str(e)}), 500
 
     elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de erosion minimo: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
