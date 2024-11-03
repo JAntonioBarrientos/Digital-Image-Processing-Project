@@ -92,7 +92,7 @@ const WatermarkFilter: React.FC<WatermarkFilterProps> = ({
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            style={{ width: '100%' }}
+            style={{ width: '80%' }}
           />
         </label>
       </div>
@@ -134,10 +134,12 @@ const WatermarkFilter: React.FC<WatermarkFilterProps> = ({
         <label>
           Tamaño de fuente ({fontSize}px):
           <input
-            type="number"
+            type="range"
             value={fontSize}
+            min="5"
+            max="250"
             onChange={(e) => setFontSize(parseInt(e.target.value))}
-            style={{ width: '25%' }}
+            style={{ width: '50%' }}
           />
         </label>
       </div>
@@ -148,14 +150,7 @@ const WatermarkFilter: React.FC<WatermarkFilterProps> = ({
       {/* Previsualizar la imagen y manejar el clic */}
       {selectedImage && (
         <div style={{ marginTop: '20px' }}>
-          <img
-            ref={imageRef}
-            src={URL.createObjectURL(selectedImage)}
-            alt="Imagen seleccionada"
-            onClick={handleImageClick}
-            style={{ maxWidth: '100%', cursor: 'pointer' }}
-          />
-          <p style={{
+            <p style={{
             marginTop: '10px',
             color: '#007bff',
             fontWeight: 'bold',
@@ -164,6 +159,13 @@ const WatermarkFilter: React.FC<WatermarkFilterProps> = ({
             }}>
             Haz clic en la imagen para colocar la marca de agua y aplicar el filtro.
             </p>
+          <img
+            ref={imageRef}
+            src={URL.createObjectURL(selectedImage)}
+            alt="Imagen seleccionada"
+            onClick={handleImageClick}
+            style={{ maxWidth: '100%', cursor: 'pointer' }}
+          />
         </div>
       )}
       

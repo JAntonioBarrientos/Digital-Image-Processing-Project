@@ -1,4 +1,4 @@
-# Digital Image Processing Project  
+# Procesamiento Digital de Imágenes. Semestre 2025-1  
 
 **Alumno:** José Antonio Barrientos Sánchez
 
@@ -67,6 +67,12 @@ Para detener los contenedores de Docker, ejecuta el siguiente comando en el dire
 
 ```bash
 docker compose down
+```
+
+Para eliminar el contenedor de Docker y las imágenes, puedes agregar la bandera -v al comando:
+
+```bash
+docker compose down -v
 ```
 
 
@@ -163,11 +169,4 @@ La explicación detallada de cada filtro, su pseudocódigo y su implementación 
 
 - [documentacion-implementacion/Tarea9.md](documentacion-implementacion/Tarea9.md)
 
-
-La aplicación web admite varios filtros de procesamiento de imágenes que se pueden aplicar a las imágenes cargadas. Los filtros disponibles actualmente son:
-
-- Crear marcas de agua
-- Dithering
-- Filtro Oleo a blanco y negro y color
-- Filtro de Erosión, máximo y mínimo.
 
