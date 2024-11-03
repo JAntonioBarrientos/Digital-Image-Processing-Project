@@ -78,9 +78,11 @@ const OleoFilter: React.FC<OleoFilterProps> = ({ selectedImage, setImagePreview,
           />
         </label>
         <label>
-          Tamaño de la matriz de bloque:
+          Tamaño de la matriz de bloque ({blockSize}x{blockSize}):
           <input
-            type="number"
+            type="range"
+            min="3"
+            max="25"
             value={blockSize}
             onChange={(e) => setBlockSize(parseInt(e.target.value))}
             style={{ marginLeft: '10px' }}

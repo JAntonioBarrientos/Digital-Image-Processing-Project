@@ -12,6 +12,35 @@ Este proyecto es una aplicación web para el procesamiento digital de imágenes 
 - Desplegable usando **Docker** y **Docker Compose** para asegurar portabilidad.
 - Optimizado para rendimiento utilizando **multiprocessing** y **vectorización** en Python.
 
+## Implementación de filtros
+
+Los algoritmos fueron implementados desde cero en Python apoyandonos de operaciones vectorizadas y multiprocessing para mejorar el rendimiento de los filtros incluidas en las librerías de Python como OpenCV y Numpy.
+
+La explicación detallada de cada filtro, su pseudocódigo y su implementación en Python se encuentra en la carpeta: `documentacion-implementacion/`
+
+- [documentacion-implementacion/Proyecto.md](documentacion-implementacion/Proyecto.md)
+
+- [documentacion-implementacion/Tarea1.md](documentacion-implementacion/Tarea1.md)
+
+- [documentacion-implementacion/Tarea2.md](documentacion-implementacion/Tarea2.md)
+
+- [documentacion-implementacion/Tarea3.md](documentacion-implementacion/Tarea3.md)
+
+- [documentacion-implementacion/Tarea4.md](documentacion-implementacion/Tarea4.md)
+
+- [documentacion-implementacion/Tarea5.md](documentacion-implementacion/Tarea5.md)
+
+- [documentacion-implementacion/Tarea6.md](documentacion-implementacion/Tarea6.md)
+
+- [documentacion-implementacion/Tarea7.md](documentacion-implementacion/Tarea7.md)
+
+- [documentacion-implementacion/Tarea8.md](documentacion-implementacion/Tarea8.md)
+
+- [documentacion-implementacion/Tarea9.md](documentacion-implementacion/Tarea9.md)
+
+
+
+
 ## Requisitos
 
 Antes de ejecutar este proyecto, asegúrate de tener instalados los siguientes componentes en tu máquina:
@@ -74,6 +103,8 @@ Para eliminar el contenedor de Docker y las imágenes, puedes agregar la bandera
 ```bash
 docker compose down -v
 ```
+
+
 
 
 ## Ejecución local sin Docker (opcional)
@@ -141,32 +172,5 @@ pip install -r requirements.txt
 ```bash
 python app.py
 ```
-
-
-## Implementación de filtros
-
-Los algoritmos fueron implementados desde cero en Python apoyandonos de operaciones vectorizadas y multiprocessing para mejorar el rendimiento de los filtros incluidas en las librerías de Python como OpenCV y Numpy.
-
-La explicación detallada de cada filtro, su pseudocódigo y su implementación en Python se encuentra en la carpeta: `documentacion-implementacion/`
-
-- [documentacion-implementacion/Proyecto.md](documentacion-implementacion/Proyecto.md)
-
-- [documentacion-implementacion/Tarea1.md](documentacion-implementacion/Tarea1.md)
-
-- [documentacion-implementacion/Tarea2.md](documentacion-implementacion/Tarea2.md)
-
-- [documentacion-implementacion/Tarea3.md](documentacion-implementacion/Tarea3.md)
-
-- [documentacion-implementacion/Tarea4.md](documentacion-implementacion/Tarea4.md)
-
-- [documentacion-implementacion/Tarea5.md](documentacion-implementacion/Tarea5.md)
-
-- [documentacion-implementacion/Tarea6.md](documentacion-implementacion/Tarea6.md)
-
-- [documentacion-implementacion/Tarea7.md](documentacion-implementacion/Tarea7.md)
-
-- [documentacion-implementacion/Tarea8.md](documentacion-implementacion/Tarea8.md)
-
-- [documentacion-implementacion/Tarea9.md](documentacion-implementacion/Tarea9.md)
 
 
