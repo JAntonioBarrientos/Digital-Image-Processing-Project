@@ -7,57 +7,46 @@ class ClusteredDitheringFilter(BaseFilter):
 
     def __init__(self, image):
         """
-        Inicializa el filtro de dithering con matriz "clustered" con una imagen en escala de grises.
-        :param image: Objeto de imagen (PIL Image).
+        Initializes the clustered dithering filter with a grayscale image.
+        :param image: PIL Image object.
         """
-        # Convertir la imagen a escala de grises usando el filtro correspondiente
+        # Convert to grayscale using GrayscaleFilter
         im_gray = GrayscaleFilter(image)
-        super().__init__(im_gray.apply_filter())  # Llamar al constructor de la clase base con la imagen en escala de grises
-        
+        super().__init__(im_gray.apply_filter())  # Initialize base class with grayscale image
+
         self.width, self.height = self.image.size
-        
-        # Definir la matriz "clustered" de 3x3
+
+        # Define the 3x3 clustered matrix
         self.cluster_matrix = np.array([
             [8, 3, 4],
             [6, 1, 2],
             [7, 5, 9]
         ])
-        
-        # Escalar la matriz para el rango de 0 a 255 (cada valor de la matriz se multiplica por 255 // 9)
-        self.threshold_matrix = self.cluster_matrix * (255 // 9)
+
+        # Scale the matrix to match the pixel scaling (0-255)
+        self.threshold_matrix = self.cluster_matrix * (255 / (self.cluster_matrix.max() + 1))
 
     def apply_filter(self):
         """
-        Aplica el filtro de dithering utilizando la matriz "clustered" de 3x3.
-        :return: Imagen procesada con dithering.
+        Applies clustered dithering using a 3x3 matrix.
+        :return: Dithered PIL Image.
         """
-        # Crear una nueva imagen para el resultado en blanco y negro
-        result_image = Image.new("L", (self.width, self.height))
-        result_pixels = result_image.load()
-        
-        # Obtener los píxeles de la imagen original
-        original_pixels = self.image.load()
+        # Convert image to NumPy array
+        image_array = np.array(self.image.convert('L'), dtype=np.uint8)
 
-        # Iterar sobre cada bloque de 3x3 en la imagen
-        for i in range(0, self.width, 3):
-            for j in range(0, self.height, 3):
-                # Iterar sobre cada píxel en el bloque 3x3
-                for x in range(3):
-                    for y in range(3):
-                        if i + x < self.width and j + y < self.height:
-                            # Leer el valor de brillo del píxel original
-                            pixel_value = original_pixels[i + x, j + y][0]
+        # Create a threshold map based on the position in the 3x3 matrix
+        Y, X = np.indices((self.height, self.width))
+        cluster_indices_x = X % 3
+        cluster_indices_y = Y % 3
+        threshold_map = self.threshold_matrix[cluster_indices_y, cluster_indices_x]
 
-                            # Escalar el valor del píxel entre 0 y 9 (dividir por 28)
-                            pixel_value_scaled = pixel_value // 28
+        # Create mask where pixel value is less than the threshold
+        mask = image_array < threshold_map
 
-                            # Comparar con el valor de la matriz
-                            threshold_value = self.cluster_matrix[x, y]
+        # Create the result array: 0 where mask is True, 255 otherwise
+        result_array = np.where(mask, 0, 255).astype(np.uint8)
 
-                            # Aplicar la regla de dithering
-                            if pixel_value_scaled < threshold_value:
-                                result_pixels[i + x, j + y] = 0  # Negro
-                            else:
-                                result_pixels[i + x, j + y] = 255  # Blanco
+        # Convert result array to PIL Image
+        result_image = Image.fromarray(result_array, mode='L')
 
         return result_image

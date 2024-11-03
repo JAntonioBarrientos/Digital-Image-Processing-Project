@@ -13,7 +13,7 @@ from models.recursiveImage.recursive_images_color import RecursiveImagesColor
 from models.watermark.water_mark_filter import WatermarkFilter
 from models.watermark.water_mark_filter_diagonal import WatermarkFilterDiagonal
 from models.watermark.remove_red_watermark import RemoveRedWatermarkFilter
-from models.dithering.halftones_filter import HalftonesFilter
+from models.dithering.halftones_filter import HalftoneFilter
 from models.dithering.random_dithering_filter import RandomDitheringFilter
 from models.dithering.clustered_dithering import ClusteredDitheringFilter
 from models.dithering.dispersed_dithering import DispersedDitheringFilter
@@ -97,8 +97,8 @@ class ImageService:
         return watermark_filter_diagonal.apply_filter()
 
     # Método para aplicar el filtro de dithering
-    def apply_halftones_filter(self, num_variaciones, full_resolution):
-        halftones_filter = HalftonesFilter(self.image, num_variaciones, full_resolution)
+    def apply_halftones_filter(self, num_variaciones):
+        halftones_filter = HalftoneFilter(self.image, num_variaciones)
         return halftones_filter.apply_filter()
 
     def apply_random_dithering_filter(self):

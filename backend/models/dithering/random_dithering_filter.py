@@ -1,5 +1,5 @@
 from PIL import Image
-import random
+import numpy as np
 from models.base_filter import BaseFilter
 from models.filters.grayscale_filter import GrayscaleFilter
 
@@ -12,40 +12,34 @@ class RandomDitheringFilter(BaseFilter):
         """
         im_gray = GrayscaleFilter(image)
         super().__init__(im_gray.apply_filter())
-        
-        # Obtener dimensiones originales de la imagen
-        width, height = self.image.size
-        self.width = width
-        self.height = height
 
+        # Obtener dimensiones originales de la imagen
+        self.width, self.height = self.image.size
 
     def apply_filter(self):
         """
         Método que aplica el dithering aleatorio a la imagen en escala de grises.
         :return: Imagen procesada con dithering aleatorio.
         """
-        # Crear una nueva imagen para el resultado en blanco y negro
-        result_image = Image.new("RGB", (self.width, self.height))
+        # Convertir la imagen a un arreglo NumPy
+        image_array = np.array(self.image)
 
-        # Obtener los píxeles de la imagen original
-        pixels = self.image.load()
+        # Generar una matriz aleatoria del mismo tamaño que la imagen
+        random_matrix = np.random.randint(0, 256, (self.height, self.width), dtype=np.uint8)
 
-        # Cargar los píxeles de la imagen de resultado
-        result_pixels = result_image.load()
+        # Obtener el canal de brillo (asumiendo escala de grises, R=G=B)
+        brightness = image_array[:, :, 0]
 
-        # Iterar sobre cada píxel de la imagen
-        for i in range(self.width):
-            for j in range(self.height):
-                # Obtener el valor de brillo (en escala de grises, r = g = b)
-                brightness = pixels[i, j][0]  # Solo necesitamos un canal, ya que es en escala de grises
+        # Crear una máscara donde el brillo es MENOR o IGUAL al valor aleatorio
+        mask = brightness <= random_matrix
 
-                # Generar un número aleatorio entre 0 y 255
-                random_value = random.randint(0, 255)
+        # Inicializar el arreglo de resultado con blanco
+        result_array = np.ones_like(image_array) * 255
 
-                # Si el brillo es menor o igual al valor aleatorio, pintamos el píxel de negro
-                if brightness <= random_value:
-                    result_pixels[i, j] = (0, 0, 0)  # Negro
-                else:
-                    result_pixels[i, j] = (255, 255, 255)  # Blanco
+        # Asignar negro donde la máscara es verdadera
+        result_array[mask] = [0, 0, 0]
+
+        # Convertir el arreglo de resultado a una imagen PIL
+        result_image = Image.fromarray(result_array.astype('uint8'), 'RGB')
 
         return result_image

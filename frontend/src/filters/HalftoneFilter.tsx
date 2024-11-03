@@ -10,7 +10,7 @@ interface HalftoneFilterProps {
 
 const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
   // Valores por defecto para los inputs
-  const [nVariantes, setNVariantes] = useState<number>(8); // Valor por defecto de n_variantes
+  const [nVariantes, setNVariantes] = useState<number>(6); // Valor por defecto de n_variantes
   const [fullResolution, setFullResolution] = useState<boolean>(true); // Bandera para indicar si es HD
   const [errorMessage, setErrorMessage] = useState<string | null>(null);  // Estado para el mensaje de error
 
@@ -60,21 +60,12 @@ const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImage
         <label>
           Número de semitonos ({nVariantes}):
           <input
-            type="number"
+            type="range"
             value={nVariantes}
             onChange={(e) => setNVariantes(parseInt(e.target.value))}
-            min="2"
-            max="255"
+            min="4"
+            max="8"
             style={{ width: '20%' }}
-          />
-        </label>
-        <label>
-          Resolución completa (Las dimensiones de la imagen se multiplicarán por las variantes):
-          <input
-            type="checkbox"
-            checked={fullResolution}
-            onChange={(e) => setFullResolution(e.target.checked)}
-            style={{ marginLeft: '10px' }}
           />
         </label>
       </div>

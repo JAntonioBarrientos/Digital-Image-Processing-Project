@@ -539,11 +539,6 @@ def apply_halftones_filter():
     except (ValueError, KeyError):
         return jsonify({"error": "Valor inválido o faltante para 'n_variantes'"}), 400
 
-    # Obtener el valor de full_resolution desde el formulario
-    try:
-        full_resolution = request.form['full_resolution'].lower() == 'true'
-    except KeyError:
-        full_resolution = False  # Valor por defecto si no se envía la bandera
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
     time_start = time.time()
@@ -551,7 +546,7 @@ def apply_halftones_filter():
     image_service = ImageService(image_file)
     try:
         # Llamar al método de procesamiento con full_resolution en lugar de grid_factor
-        processed_image = image_service.apply_halftones_filter(n_variantes, full_resolution)
+        processed_image = image_service.apply_halftones_filter(n_variantes)
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
