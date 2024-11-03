@@ -166,8 +166,6 @@ La explicación detallada de cada filtro, su pseudocódigo y su implementación 
 
 La aplicación web admite varios filtros de procesamiento de imágenes que se pueden aplicar a las imágenes cargadas. Los filtros disponibles actualmente son:
 
-- Imagenes recursivas en escala de grises
-- Imagenes recursivas en escala de grises ponderada
 - Crear marcas de agua
 - Dithering
 - Filtro Oleo a blanco y negro y color

@@ -118,7 +118,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
           disabled={isBackendPreprocessing}
         />
         <b>Advertencia:</b> Valores altos pueden causar que la imagen <br />
-        procesada sea muy grande y si no es suficiente la <br />
+        procesada sea muy grande y si no hay suficiente <br />
         memoria RAM, el navegador puede congelarse. <br />
       </label>
       <br />

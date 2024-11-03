@@ -72,13 +72,16 @@ class ImageService:
         return mean_filter.apply_filter()
 
     # Método para aplicar el filtro de imágenes recursivas en escala de grises
-    def apply_recursive_gray_filter(self, n_variantes, grid_factor):
-        recursive_image = RecursiveImagesGray(self.image, n_variantes, grid_factor)
-        return recursive_image.apply_filter()
+    def apply_recursive_gray_filter(self, n_variantes, upscale_factor, grid_rows, grid_cols):
+        # Lógica para aplicar el filtro con los nuevos parámetros
+        recursive_filter = RecursiveImagesGray(
+            self.image, n_variantes, upscale_factor, grid_rows, grid_cols
+        )
+        return recursive_filter.apply_filter()
 
     # Método para aplicar el filtro de imágenes recursivas en color
-    def apply_recursive_color_filter(self, grid_factor):
-        recursive_image = RecursiveImagesColor(self.image, grid_factor)
+    def apply_recursive_color_filter(self, upscale_factor, grid_rows, grid_cols):
+        recursive_image = RecursiveImagesColor(self.image, upscale_factor, grid_rows, grid_cols)
         return recursive_image.apply_filter()
 
     # Método para aplicar el filtro de marca de agua

@@ -284,17 +284,38 @@ def apply_recursive_image_gray():
     except (ValueError, KeyError):
         return jsonify({"error": "Valor inválido o faltante para 'n_variantes'"}), 400
 
+    # Obtener el upscale_factor
     try:
-        grid_factor = int(request.form['grid_factor'])
-    except ValueError:
-        grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
+        upscale_factor = float(request.form['upscale_factor'])
+        if upscale_factor < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'upscale_factor'. Debe ser un número mayor o igual a 1."}), 400
+
+    # Obtener grid_rows
+    try:
+        grid_rows = int(request.form['grid_rows'])
+        if grid_rows < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'grid_rows'. Debe ser un entero mayor o igual a 1."}), 400
+
+    # Obtener grid_cols
+    try:
+        grid_cols = int(request.form['grid_cols'])
+        if grid_cols < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'grid_cols'. Debe ser un entero mayor o igual a 1."}), 400
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
     time_start = time.time()
 
     image_service = ImageService(image_file)
     try:
-        processed_image = image_service.apply_recursive_gray_filter(n_variantes, grid_factor)
+        processed_image = image_service.apply_recursive_gray_filter(
+            n_variantes, upscale_factor, grid_rows, grid_cols
+        )
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
@@ -310,7 +331,7 @@ def apply_recursive_image_gray():
     return send_file(img_io, mimetype='image/jpeg')
 
 
-# Ruta para aplicar el filtro de imagen recursiva escala de grises
+# Ruta para aplicar el filtro de imagen recursiva a color
 
 @image_controller.route('/apply-recursive-image-color', methods=['POST'])
 def apply_recursive_image_color():
@@ -319,22 +340,43 @@ def apply_recursive_image_color():
     
     image_file = request.files['image']
 
+    # Obtener el upscale_factor
     try:
-        grid_factor = int(request.form['grid_factor'])
-    except ValueError:
-        grid_factor = 50  # Si no puede convertir a entero, usar valor por defecto
+        upscale_factor = float(request.form['upscale_factor'])
+        if upscale_factor < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'upscale_factor'. Debe ser un número mayor o igual a 1."}), 400
+
+    # Obtener grid_rows
+    try:
+        grid_rows = int(request.form['grid_rows'])
+        if grid_rows < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'grid_rows'. Debe ser un entero mayor o igual a 1."}), 400
+
+    # Obtener grid_cols
+    try:
+        grid_cols = int(request.form['grid_cols'])
+        if grid_cols < 1:
+            raise ValueError
+    except (ValueError, KeyError):
+        return jsonify({"error": "Valor inválido o faltante para 'grid_cols'. Debe ser un entero mayor o igual a 1."}), 400
 
     # Procesar la imagen aplicando el filtro de imagen recursiva escala de grises
     time_start = time.time()
 
     image_service = ImageService(image_file)
     try:
-        processed_image = image_service.apply_recursive_color_filter(grid_factor)
+        processed_image = image_service.apply_recursive_color_filter(
+            upscale_factor, grid_rows, grid_cols
+        )
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
     elapsed_time = time.time() - time_start
-    print(f"Tiempo de procesamiento del filtro de imagen recursiva color: {elapsed_time:.2f} segundos")
+    print(f"Tiempo de procesamiento del filtro de imagen recursiva escala de grises: {elapsed_time:.2f} segundos")
 
     # Guardar la imagen procesada en un flujo de bytes
     img_io = BytesIO()
@@ -343,6 +385,8 @@ def apply_recursive_image_color():
 
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
+
+
 
 # Ruta para aplicar el filtro de watermark
 
