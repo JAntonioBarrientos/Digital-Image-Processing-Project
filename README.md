@@ -166,12 +166,6 @@ La explicación detallada de cada filtro, su pseudocódigo y su implementación 
 
 La aplicación web admite varios filtros de procesamiento de imágenes que se pueden aplicar a las imágenes cargadas. Los filtros disponibles actualmente son:
 
-- Efecto Blur
-- Efecto Motion Blur
-- Efecto Sharpen
-- Efecto Emboss
-- Efecto Find Edges
-- Efecto Promedio
 - Imagenes recursivas en escala de grises
 - Imagenes recursivas en escala de grises ponderada
 - Crear marcas de agua
