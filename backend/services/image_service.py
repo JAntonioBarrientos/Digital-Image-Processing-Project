@@ -12,6 +12,7 @@ from models.recursiveImage.recursive_images_gray import RecursiveImagesGray
 from models.recursiveImage.recursive_images_color import RecursiveImagesColor
 from models.watermark.water_mark_filter import WatermarkFilter
 from models.watermark.water_mark_filter_diagonal import WatermarkFilterDiagonal
+from models.watermark.remove_red_watermark import RemoveRedWatermarkFilter
 from models.dithering.halftones_filter import HalftonesFilter
 from models.dithering.random_dithering_filter import RandomDitheringFilter
 from models.dithering.clustered_dithering import ClusteredDitheringFilter
@@ -20,6 +21,7 @@ from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 from models.oleo.oleo_filter import OleoFilter
 from models.erosion.min_max import MinMaxKernelFilter
 from models.mosaico.mosaic_filter import MosaicFilter
+
 
 class ImageService:
     def __init__(self, image_file):
@@ -127,5 +129,10 @@ class ImageService:
     def apply_mosaic_filter(self, block_width, block_height, upscale_factor):
         mosaic_filter = MosaicFilter(self.image)
         return mosaic_filter.apply_filter(block_width, block_height, upscale_factor)
+
+    def remove_red_watermark(self, sensitivity=100):
+        filter = RemoveRedWatermarkFilter(self.image, sensitivity)
+        processed_image = filter.apply_filter()
+        return processed_image
 
 

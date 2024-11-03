@@ -440,6 +440,45 @@ def apply_watermark():
     # Enviar la imagen procesada de vuelta al frontend
     return send_file(img_io, mimetype='image/jpeg')
 
+@image_controller.route('/remove-red-watermark', methods=['POST'])
+def remove_red_watermark():
+    # Verificar si se ha subido una imagen
+    if 'image' not in request.files:
+        return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+    
+    image_file = request.files['image']
+    
+    # Obtener el valor de sensibilidad desde el formulario, con un valor por defecto
+    sensitivity = 100  # Valor por defecto
+    if 'sensitivity' in request.form:
+        try:
+            sensitivity = int(request.form['sensitivity'])
+            if not (0 <= sensitivity <= 255):
+                raise ValueError
+        except ValueError:
+            return jsonify({"error": "El valor de sensibilidad debe ser un entero entre 0 y 255"}), 400
+    
+    # Procesar la imagen aplicando el filtro de eliminación de marcas de agua rojas
+    time_start = time.time()
+    
+    try:
+        image_service = ImageService(image_file)
+        processed_image = image_service.remove_red_watermark(sensitivity)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    elapsed_time = time.time() - time_start
+    print(f"Tiempo de procesamiento del filtro de eliminación de marca de agua roja: {elapsed_time:.2f} segundos")
+    
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+    
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+    
 # Ruta para aplicar el filtro de watermark diagonal
 
 @image_controller.route('/apply-watermark-filter-diagonal', methods=['POST'])

@@ -27,6 +27,9 @@ backend/data/*
 # No ignorar el directorio image_library/
 !backend/data/image_library/
 
+# No ignorar el directorio image_library/
+!backend/data/water_marks/
+
 #No ignorar el readme
 !backend/data/README.md
 

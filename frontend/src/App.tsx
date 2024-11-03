@@ -13,6 +13,7 @@ import RecursiveGrayFilter from './filters/RecursiveGrayFilter';
 import RecursiveColorFilter from './filters/RecursiveColorFilter';
 import WatermarkFilter from './filters/WatermarkFilter';
 import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
+import RemoveRedWatermarkFilter from './filters/RemoveRedWatermarkFilter';
 import HalftoneFilter from './filters/HalftoneFilter';
 import RandomDithering from './filters/RandomDithering';
 import ClusteredDithering from './filters/ClusteredDithering';
@@ -116,6 +117,7 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('watermark')}>Marca de agua</li>
               <li onClick={() => setSelectedFilter('watermark-diagonal')}>Marca de agua diagonal</li>
+              <li onClick={() => setSelectedFilter('remove-red-watermark')}>Eliminar marca de agua roja</li>
             </ul>
           )}
         </div>
@@ -294,6 +296,14 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'watermark-diagonal' && (
               <WatermarkFilterDiagonal
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'remove-red-watermark' && (
+              <RemoveRedWatermarkFilter
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}
