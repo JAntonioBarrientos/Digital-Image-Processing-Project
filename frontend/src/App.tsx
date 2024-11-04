@@ -41,7 +41,7 @@ const App: React.FC = () => {
   const documentationLinks: { [key: string]: { name: string; url: string } } = {
     'documentation-tarea1': {
       name: 'Tarea 1',
-      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/dev/documentacion-implementacion/Tarea1.md',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea1.md',
     },
     'documentation-tarea2': {
       name: 'Tarea 2',
