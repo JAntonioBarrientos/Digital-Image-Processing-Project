@@ -56,19 +56,19 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Para cada par de píxeles vecinos verticalmente alineados, calculamos el valor interpolado en el eje X:
 
-   $ I_{\text{top}} = I(x_0, y_0) \times (1 - d_x) + I(x_1, y_0) \times d_x $
+   $$I_{\text{top}} = I(x_0, y_0) \times (1 - d_x) + I(x_1, y_0) \times d_x$$
 
-   $ I_{\text{bottom}} = I(x_0, y_1) \times (1 - d_x) + I(x_1, y_1) \times d_x $
+   $$I_{\text{bottom}} = I(x_0, y_1) \times (1 - d_x) + I(x_1, y_1) \times d_x$$
 
 7. **Interpolar en el Eje Y**
 
    Usamos los valores $I_{\text{top}}$ y $I_{\text{bottom}}$ obtenidos en el paso anterior para interpolar en el eje Y y calcular el valor final del píxel en la imagen redimensionada:
 
-   $ I_{\text{new}} = I_{\text{top}} \times (1 - d_y) + I_{\text{bottom}} \times d_y $
+   $$I_{\text{new}} = I_{\text{top}} \times (1 - d_y) + I_{\text{bottom}} \times d_y$$
 
 8. **Asignar el Valor al Píxel de la Imagen Redimensionada**
 
-   Asignamos el valor $I_{\text{new}}$ al píxel correspondiente en la imagen redimensionada en las coordenadas $(x_{\text{new}}, y_{\text{new}} \times o)$.
+   Asignamos el valor $I_{\text{new}}$ al píxel correspondiente en la imagen redimensionada en las coordenadas $(x_{\text{new}}, y_{\text{new}})$.
 
 9. **Repetir para Todos los Píxeles**
 
