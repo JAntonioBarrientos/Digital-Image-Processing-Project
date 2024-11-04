@@ -13,7 +13,9 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
    La relación de escala determina cuánto se reducirá o aumentará la imagen en cada dimensión (X e Y)
 
    **Relación de escala en X (ancho):** 
-   $$\text{scale_{\text{x}}} = \frac{\text{nuevo_{\text{ancho}}}}{\text{ancho_{\text{original}}}}$$
+   ```math
+    \text{scale\_x} = \frac{\text{nuevo\_ancho}}{\text{ancho\_original}}
+    ```
 
    **Relación de escala en Y (alto):** $ \text{scale\_y} = \frac{\text{nuevo\_alto}}{\text{alto\_original}} $
 
