@@ -45,6 +45,7 @@ const ResizeFilter: React.FC<ResizeFilterProps> = ({
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro de redimensionamiento:', error);
+      alert('Error al aplicar el filtro de redimensionamiento. Introduce valores positivos a los porcentajes en X y Y.');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
@@ -58,7 +59,6 @@ const ResizeFilter: React.FC<ResizeFilterProps> = ({
         <input
           type="number"
           min="1"
-          max="500"
           value={percentX}
           onChange={(e) => setPercentX(parseFloat(e.target.value))}
         />
@@ -69,7 +69,6 @@ const ResizeFilter: React.FC<ResizeFilterProps> = ({
         <input
           type="number"
           min="1"
-          max="500"
           value={percentY}
           onChange={(e) => setPercentY(parseFloat(e.target.value))}
         />
