@@ -13,11 +13,10 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
    La relación de escala determina cuánto se reducirá o aumentará la imagen en cada dimensión (X e Y)
 
    **Relación de escala en X (ancho):** 
-```math
-\text{scale}_{x} = \frac{\text{nuevo_ancho}}{\text{ancho_original}}
-```
+   $$\text{scale}_{x} = \frac{\text{nuevo_ancho}}{\text{ancho_original}}$$
 
-   **Relación de escala en Y (alto):** $ \text{scale\_y} = \frac{\text{nuevo\_alto}}{\text{alto\_original}} $
+   **Relación de escala en Y (alto):** 
+   $$\text{scale\_y} = \frac{\text{nuevo\_alto}}{\text{alto\_original}}$$
 
 2. **Crear la Imagen Redimensionada**
 
@@ -27,9 +26,9 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Para cada píxel en la imagen redimensionada, calculamos las coordenadas correspondientes en la imagen original:
 
-   $$ x_{\text{orig}} = x_{\text{new}} \times \text{scale\_x} $$
+   $$x_{\text{orig}} = x_{\text{new}} \times \text{scale\_x}$$
 
-   $$ y_{\text{orig}} = y_{\text{new}} \times \text{scale\_y} $$
+   $$y_{\text{orig}} = y_{\text{new}} \times \text{scale\_y}$$
 
    Estas coordenadas pueden ser valores decimales.
 
@@ -37,10 +36,10 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Para realizar la interpolación bilineal, necesitamos los cuatro píxeles más cercanos en la imagen original. Definimos:
 
-   - $ x_0 = \lfloor x_{\text{orig}} \rfloor $
-   - $ y_0 = \lfloor y_{\text{orig}} \rfloor $
-   - $ x_1 = x_0 + 1 $
-   - $ y_1 = y_0 + 1 $
+   - $$x_0 = \lfloor x_{\text{orig}} \rfloor$$
+   - $$y_0 = \lfloor y_{\text{orig}} \rfloor$$
+   - $$x_1 = x_0 + 1$$
+   - $$y_1 = y_0 + 1$$
 
    Para evitar índices fuera de los límites, aplicamos *clipping* en estas coordenadas, ajustándolas al borde más cercano de la imagen si es necesario.
 
@@ -48,9 +47,9 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Calculamos las distancias entre las coordenadas originales y los píxeles vecinos. Estas distancias fraccionarias permiten ponderar cada píxel vecino en la interpolación:
 
-   $ d_x = x_{\text{orig}} - x_0 $
+   $$d_x = x_{\text{orig}} - x_0$$
 
-   $ d_y = y_{\text{orig}} - y_0 $
+   $$d_y = y_{\text{orig}} - y_0$$
 
 6. **Interpolar en el Eje X**
 
