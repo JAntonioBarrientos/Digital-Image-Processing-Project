@@ -820,3 +820,41 @@ def reset_preprocessing():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# Ruta para aplicar el filtro de redimensionamiento (Resize)
+@image_controller.route('/apply-resize', methods=['POST'])
+def apply_resize():
+    if 'image' not in request.files:
+        return "No se ha subido ningún archivo de imagen", 400
+
+    image_file = request.files['image']
+
+    # Obtener los porcentajes de escala desde el formulario
+    try:
+        percent_x = float(request.form['percent_x'])
+        percent_y = float(request.form['percent_y'])
+    except (ValueError, KeyError):
+        return "Porcentajes inválidos o faltantes", 400
+
+    # Validar que los porcentajes sean números positivos mayores que cero
+    if percent_x <= 0 or percent_y <= 0:
+        return "Los porcentajes deben ser números positivos mayores que cero", 400
+
+    # Procesar la imagen aplicando el filtro de redimensionamiento
+    start_time = time.time()
+
+    image_service = ImageService(image_file)
+    processed_image = image_service.apply_resize_filter(percent_x, percent_y)
+
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de procesamiento del filtro de redimensionamiento: {elapsed_time:.2f} segundos")
+
+    # Guardar la imagen procesada en un flujo de bytes
+    img_io = BytesIO()
+    processed_image.save(img_io, 'JPEG')
+    img_io.seek(0)  # Mover el cursor al inicio del flujo
+
+    # Enviar la imagen procesada de vuelta al frontend
+    return send_file(img_io, mimetype='image/jpeg')
+
+

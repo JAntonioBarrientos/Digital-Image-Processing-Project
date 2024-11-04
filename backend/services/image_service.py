@@ -21,6 +21,7 @@ from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 from models.oleo.oleo_filter import OleoFilter
 from models.erosion.min_max import MinMaxKernelFilter
 from models.mosaico.mosaic_filter import MosaicFilter
+from models.filters.resize import ResizeFilter
 
 
 class ImageService:
@@ -135,4 +136,7 @@ class ImageService:
         processed_image = filter.apply_filter()
         return processed_image
 
+    def apply_resize_filter(self, percent_x, percent_y):
+        resize_filter = ResizeFilter(self.image, percent_x, percent_y)
+        return resize_filter.apply_filter()
 

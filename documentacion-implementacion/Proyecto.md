@@ -27,7 +27,7 @@ Dentro de la terminal se indicará la cantidad de núcleos usados y si se esta p
 ### Características
 
 1. **Upscale Factor de las dimensiones: N**
-    - Este factor de escala aumenta las dimensiones de la imagen procesada en un factor de 4. Es decir, cada dimensión (ancho y alto) de la imagen original se multiplica por N, resultando en una imagen procesada mucho más grande.
+    - Este factor de escala aumenta las dimensiones de la imagen procesada en un factor de N. Es decir, cada dimensión (ancho y alto) de la imagen original se multiplica por N, resultando en una imagen procesada mucho más grande.
 
     **Advertencia**: Valores altos pueden causar que la imagen procesada sea muy grande y si no hay suficiente memoria RAM, el navegador puede congelarse. En caso de que esto suceda, se recomienda reiniciar el contenedor de Docker y probar con un valor más bajo.
 

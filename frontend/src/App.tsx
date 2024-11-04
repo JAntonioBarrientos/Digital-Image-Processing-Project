@@ -23,7 +23,7 @@ import OleoFilter from './filters/OleoFilter';
 import MinFilter from './filters/MinFilter';
 import MaxFilter from './filters/MaxFilter';
 import MosaicFilter from './filters/MosaicFilter';
-
+import ResizeFilter from './filters/ResizeFilter';
 
 
 const App: React.FC = () => {
@@ -66,6 +66,14 @@ const App: React.FC = () => {
     'documentation-tarea7': {
       name: 'Tarea 7',
       url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea7.md',
+    },
+    'documentation-tarea8': {
+      name: 'Tarea 8',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea8.md',
+    },
+    'documentation-tarea9': {
+      name: 'Tarea 9',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea9.md',
     },
     'documentation-proyecto': {
       name: 'Proyecto',
@@ -255,6 +263,18 @@ const App: React.FC = () => {
             </ul>
           )}
         </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea8' ? null : 'tarea8')}>
+            Tarea 8
+          </div>
+          {expandedCategory === 'tarea8' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('resize')}>Escalar imagen</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea8')}>Documentación</li>
+            </ul>
+          )}
+        </div>
+
         <div className="category">
           <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'proyecto' ? null : 'proyecto')}>
             Proyecto
@@ -483,12 +503,27 @@ const App: React.FC = () => {
                 isProcessing={isProcessing} // Pasar isProcessing como prop
               />
             )}
+            {selectedImage && selectedFilter === 'resize' && (
+              <ResizeFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
 
 
             {/* Botón para reiniciar la imagen a la original */}
             {originalImage && (
               <button onClick={resetImage} className="reset-button">
                 Reiniciar Imagen
+              </button>
+            )}
+
+            {/* Botón para descargar la imagen procesada */}
+            {processedImageUrl && (
+              <button onClick={downloadImage} className="download-button">
+                Descargar Imagen
               </button>
             )}
 
