@@ -10,9 +10,10 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
 1. **Calcular las Relaciones de Escala**
 
-   La relación de escala determina cuánto se reducirá o aumentará la imagen en cada dimensión (X e Y) $ \text{scale\_x} = \frac{\text{nuevo\_ancho}}{\text{ancho\_original}} $
+   La relación de escala determina cuánto se reducirá o aumentará la imagen en cada dimensión (X e Y)
 
-   **Relación de escala en X (ancho):** F $ \text{scale\_x} = \frac{\text{nuevo\_ancho}}{\text{ancho\_original}} $
+   **Relación de escala en X (ancho):** 
+   $\text{scale\_x} = \frac{\text{nuevo\_ancho}}{\text{ancho\_original}}$
 
    **Relación de escala en Y (alto):** $ \text{scale\_y} = \frac{\text{nuevo\_alto}}{\text{alto\_original}} $
 
@@ -34,10 +35,10 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Para realizar la interpolación bilineal, necesitamos los cuatro píxeles más cercanos en la imagen original. Definimos:
 
-   - $$ x_0 = \lfloor x_{\text{orig}} \rfloor $$
-   - $$ y_0 = \lfloor y_{\text{orig}} \rfloor $$
-   - $$ x_1 = x_0 + 1 $$
-   - $$ y_1 = y_0 + 1 $$
+   - $ x_0 = \lfloor x_{\text{orig}} \rfloor $
+   - $ y_0 = \lfloor y_{\text{orig}} \rfloor $
+   - $ x_1 = x_0 + 1 $
+   - $ y_1 = y_0 + 1 $
 
    Para evitar índices fuera de los límites, aplicamos *clipping* en estas coordenadas, ajustándolas al borde más cercano de la imagen si es necesario.
 
@@ -45,23 +46,23 @@ La interpolación bilineal es un algoritmo de interpolación para la reconstrucc
 
    Calculamos las distancias entre las coordenadas originales y los píxeles vecinos. Estas distancias fraccionarias permiten ponderar cada píxel vecino en la interpolación:
 
-   $$ d_x = x_{\text{orig}} - x_0 $$
+   $ d_x = x_{\text{orig}} - x_0 $
 
-   $$ d_y = y_{\text{orig}} - y_0 $$
+   $ d_y = y_{\text{orig}} - y_0 $
 
 6. **Interpolar en el Eje X**
 
    Para cada par de píxeles vecinos verticalmente alineados, calculamos el valor interpolado en el eje X:
 
-   $$ I_{\text{top}} = I(x_0, y_0) \times (1 - d_x) + I(x_1, y_0) \times d_x $$
+   $ I_{\text{top}} = I(x_0, y_0) \times (1 - d_x) + I(x_1, y_0) \times d_x $
 
-   $$ I_{\text{bottom}} = I(x_0, y_1) \times (1 - d_x) + I(x_1, y_1) \times d_x $$
+   $ I_{\text{bottom}} = I(x_0, y_1) \times (1 - d_x) + I(x_1, y_1) \times d_x $
 
 7. **Interpolar en el Eje Y**
 
    Usamos los valores $I_{\text{top}}$ y $I_{\text{bottom}}$ obtenidos en el paso anterior para interpolar en el eje Y y calcular el valor final del píxel en la imagen redimensionada:
 
-   $$ I_{\text{new}} = I_{\text{top}} \times (1 - d_y) + I_{\text{bottom}} \times d_y $$
+   $ I_{\text{new}} = I_{\text{top}} \times (1 - d_y) + I_{\text{bottom}} \times d_y $
 
 8. **Asignar el Valor al Píxel de la Imagen Redimensionada**
 
