@@ -18,6 +18,8 @@ services:
       - "5000:5000"  # Mapea el puerto 5000 del contenedor al puerto 5000 de la máquina host
     environment:
       - FLASK_ENV=development
+    volumes:
+      - ./backend/data:/app/data  # Monta el directorio data/ del host al contenedor
     networks:
       - app-network
 

@@ -1,40 +1,54 @@
 from PIL import Image
 from models.base_filter import BaseFilter
 from models.filters.grayscale_filter import GrayscaleFilter
-import math
+import numpy as np
 
 class RecursiveImagesGray(BaseFilter):
 
-    def __init__(self, image, num_variations, grid_factor):
+    def __init__(self, image, num_variations, upscale_factor, grid_rows, grid_cols):
         """
         Inicializa el filtro de imágenes recursivas con una imagen,
-        calcula el tamaño de la cuadrícula en función del tamaño de la imagen y un factor de escala,
-        y establece el número de variaciones en escala de grises.
+        escala la imagen según el factor de aumento proporcionado,
+        y establece el número de variaciones en escala de grises y las dimensiones de la cuadrícula.
 
         :param image: Objeto de imagen (PIL Image).
-        :param grid_factor: Factor por el cual se dividirá el ancho y altura de la imagen.
-        :param num_variations: Número de versiones en escala de grises.
+        :param num_variations: Número de versiones en escala de grises (entre 2 y 256).
+        :param upscale_factor: Factor por el cual se multiplicará el ancho y altura de la imagen.
+        :param grid_rows: Número de filas en la cuadrícula.
+        :param grid_cols: Número de columnas en la cuadrícula.
         """
         super().__init__(image)
         
-        # Obtener dimensiones originales de la imagen
-        width, height = self.image.size
-        ## Calcular el upscale factor
-        upscale_factor = int(math.sqrt(grid_factor))
-
-        self.width = upscale_factor * width
-        self.height = upscale_factor * height
-        self.grid_width = self.width // grid_factor
-        self.grid_height = self.height // grid_factor
-        self.grid_factor = grid_factor
-
-        # Validar el factor de cuadrícula este en el rango correcto
-        if not (1 <= grid_factor <= min(width, height)):
-            raise ValueError("El factor de cuadrícula debe estar entre 1 y el alto o ancho de la imagen en píxeles") 
-
-        # Validar el numero de variantes este en el rango correcto
+        # Validar el número de variaciones
         if not (2 <= num_variations <= 256):
             raise ValueError("El número de variaciones debe estar entre 2 y 256")
+
+        # Validar el factor de escala
+        if upscale_factor < 1:
+            raise ValueError("El factor de escala (upscale_factor) debe ser al menos 1")
+
+        # Validar las dimensiones de la cuadrícula
+        if grid_rows < 1 or grid_cols < 1:
+            raise ValueError("Las dimensiones de la cuadrícula deben ser al menos 1")
+
+        # Obtener dimensiones originales de la imagen
+        original_width, original_height = self.image.size
+
+        # Escalar la imagen
+        self.width = int(upscale_factor * original_width)
+        self.height = int(upscale_factor * original_height)
+
+        # Calcular el tamaño de cada celda de la cuadrícula
+        self.grid_width = self.width // grid_cols
+        self.grid_height = self.height // grid_rows
+
+        # Ajustar las dimensiones de la imagen al tamaño exacto de la cuadrícula
+        self.width = self.grid_width * grid_cols
+        self.height = self.grid_height * grid_rows
+
+        # Actualizar las dimensiones de la cuadrícula
+        self.grid_rows = grid_rows
+        self.grid_cols = grid_cols
 
         # Definir el número de variaciones
         self.num_variations = num_variations
@@ -42,103 +56,105 @@ class RecursiveImagesGray(BaseFilter):
     def get_palette(self):
         """
         Genera n variantes de la imagen en escala de grises, ajustando el brillo de cada píxel
-        para que el valor esté más cerca del valor representativo en cada variante.
-        :return: Diccionario con las versiones de la imagen. 
-                Las claves son los valores representativos de brillo y los valores son las imágenes correspondientes.
+        para que el brillo promedio de la imagen coincida con cada valor representativo.
+
+        :return: Diccionario con las versiones de la imagen.
+                 Las claves son los valores representativos de brillo y los valores son las imágenes correspondientes.
         """
-        # Reescalar la imagen al tamaño de la cuadrícula calculada
+        # Redimensionar la imagen al tamaño de la celda de la cuadrícula
         img_resize = self.image.resize((self.grid_width, self.grid_height))
         
-        img_rescaled = GrayscaleFilter(img_resize).apply_filter()        
+        # Aplicar filtro de escala de grises
+        img_rescaled = GrayscaleFilter(img_resize).apply_filter()
+        
+        # Convertir la imagen a un arreglo NumPy para operaciones eficientes
+        img_array = np.array(img_rescaled.convert('L'), dtype=np.float32)
+        
+        # Calcular el brillo promedio de la imagen original
+        brillo_promedio = img_array.mean()
+        
+        # Evitar división por cero
+        if brillo_promedio == 0:
+            brillo_promedio = 1
+
+        # Generar los valores representativos de brillo
+        valores_brillo = np.linspace(0, 255, self.num_variations)
         
         # Diccionario para almacenar las versiones de la imagen
         versiones = {}
-        
-        # Calcular el salto entre cada variante en la escala de 0 a 255
-        paso = 255 // self.num_variations
-        
-        # Recorrer el rango de 0 a 255 con saltos de 'paso'
-        for i in range(0, 256, paso):
-            # Crear una copia de la imagen original
-            imagen_variante = img_rescaled.copy()
-            
-            # Obtener los píxeles de la imagen
-            pixels = imagen_variante.load()
-            
-            # Ajustar el brillo de cada píxel para acercarlo al valor representativo 'i'
-            for x in range(imagen_variante.width):
-                for y in range(imagen_variante.height):
-                    # Obtener el valor de brillo actual del píxel (en escala de grises)
-                    brillo_actual = pixels[x, y]
-                    
-                    # Calcular el nuevo brillo ajustado:
-                    # Desplazar el brillo actual hacia el valor representativo 'i'
-                    # Manteniendo la proporción de la imagen
-                    nuevo_brillo = int(brillo_actual[0] + (i - brillo_actual[0]) * (i / 255.0))
-                    
-                    # Asegurarse de que el nuevo valor esté en el rango [0, 255]
-                    nuevo_brillo = max(0, min(255, nuevo_brillo))
-                    
-                    # Asignar el nuevo brillo al píxel
-                    pixels[x, y] = (nuevo_brillo, nuevo_brillo, nuevo_brillo)
-            
+
+        # Generar las variaciones utilizando operaciones vectorizadas
+        for i in valores_brillo:
+            # Calcular el factor de escala
+            factor_escala = i / brillo_promedio
+
+            # Ajustar el brillo de la imagen
+            imagen_variante_array = img_array * factor_escala
+
+            # Asegurarse de que los valores estén en el rango [0, 255]
+            imagen_variante_array = np.clip(imagen_variante_array, 0, 255).astype(np.uint8)
+
+            # Convertir de nuevo a imagen PIL en modo 'L' y luego a 'RGB'
+            imagen_variante = Image.fromarray(imagen_variante_array, mode='L').convert('RGB')
+
             # Almacenar la imagen modificada en el diccionario
-            versiones[i] = imagen_variante
-        
+            versiones[int(i)] = imagen_variante
+
         return versiones
 
     def apply_filter(self):
         """
-        Método que aplica el filtro de imágenes recursivas. Que consiste en hacer un promedio de los valores RGB por el tamaño de la imagen y seleccionar la imagen en escala de grises que más se asemeje a la original.
+        Aplica el filtro de imágenes recursivas. Consiste en calcular el promedio de los valores RGB
+        en cada celda de la cuadrícula y seleccionar la variante en escala de grises que más se asemeje.
+
         :return: Imagen procesada.
         """
         # Obtener las versiones de la imagen en escala de grises
         gray_variations = self.get_palette()
+        gray_keys = np.array(list(gray_variations.keys()))
 
-        # Crear una imagen en blanco para la cuadrícula
-        recursive_image = Image.new("RGB", (self.grid_width*self.grid_factor, self.grid_height*self.grid_factor))
-
-        # Cargar los píxeles de la imagen
-        pixels = recursive_image.load()
-
-        # Imagen escalada al tamaño de la cuadrícula
+        # Imagen escalada al tamaño total
         image_upscaled = self.image.resize((self.width, self.height))
 
-        # Iterar sobre cada cuadrícula
-        for i in range(0, self.grid_width*self.grid_factor, self.grid_width):
-            for j in range(0, self.grid_height*self.grid_factor, self.grid_height):
-                # Obtener el promedio de los valores RGB de la cuadrícula
-                r, g, b = self.calculate_average_color(image_upscaled, i, j)
-                # Calcular el promedio de los valores RGB
-                p = (r + g + b) // 3
-                # Calcular el valor de escala de grises más cercano
-                grayscale_value = min(gray_variations, key=lambda x: abs(x - p))
-                # Pegar la imagen correspondiente del diccionario de nuestra variaciones en la imagen recursiva
-                recursive_image.paste(gray_variations[grayscale_value], (i, j))
+        # Convertir la imagen a un arreglo NumPy
+        image_array = np.array(image_upscaled, dtype=np.float32)
+
+        # Reshape para obtener las celdas
+        image_array = image_array.reshape(
+            self.grid_rows, self.grid_height, self.grid_cols, self.grid_width, 3
+        )
+
+        # Calcular el promedio de los valores RGB en cada celda
+        cell_means = image_array.mean(axis=(1, 3))  # Shape: (grid_rows, grid_cols, 3)
+
+        # Calcular el brillo promedio de cada celda
+        cell_brightness = cell_means.mean(axis=2)  # Shape: (grid_rows, grid_cols)
+
+        # Encontrar el valor de brillo más cercano en las variaciones para cada celda
+        # Expandir dimensiones para broadcasting
+        cell_brightness_expanded = cell_brightness[:, :, np.newaxis]  # Shape: (grid_rows, grid_cols, 1)
+        gray_keys_expanded = gray_keys[np.newaxis, np.newaxis, :]     # Shape: (1, 1, num_variations)
+
+        # Calcular la diferencia absoluta
+        diff = np.abs(gray_keys_expanded - cell_brightness_expanded)
+
+        # Encontrar el índice del valor mínimo
+        idx_min = diff.argmin(axis=2)  # Shape: (grid_rows, grid_cols)
+
+        # Obtener los valores de brillo seleccionados
+        selected_gray_values = gray_keys[idx_min]  # Shape: (grid_rows, grid_cols)
+
+        # Crear una imagen vacía para la cuadrícula
+        recursive_image = Image.new("RGB", (self.width, self.height))
+
+        # Pegar las imágenes correspondientes en la posición adecuada
+        for row in range(self.grid_rows):
+            for col in range(self.grid_cols):
+                x_start = col * self.grid_width
+                y_start = row * self.grid_height
+                grayscale_value = selected_gray_values[row, col]
+                gray_image = gray_variations[grayscale_value]
+                recursive_image.paste(gray_image, (x_start, y_start))
 
         return recursive_image
 
-    def calculate_average_color(self, image, x, y):
-        """
-        Método que calcula el promedio de los valores RGB de una cuadrícula en la imagen.
-        :param image: Imagen original.
-        :param x: Coordenada x de la cuadrícula.
-        :param y: Coordenada y de la cuadrícula.
-        :return: Tupla con los valores de los canales RGB.
-        """
-        # Inicializar las variables para los valores de los canales RGB
-        r, g, b = 0, 0, 0
-
-        # Iterar sobre la cuadrícula
-        for i in range(x, x + self.grid_width):
-            for j in range(y, y + self.grid_height):
-                # Obtener los valores RGB de cada píxel
-                pixel = image.getpixel((i, j))
-                r += pixel[0]
-                g += pixel[1]
-                b += pixel[2]
-
-        # Calcular el promedio de los valores RGB
-        total_pixels = self.grid_width * self.grid_height
-        return r // total_pixels, g // total_pixels, b // total_pixels
-        

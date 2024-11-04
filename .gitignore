@@ -2,6 +2,9 @@
 venv/
 *.pyc
 __pycache__/
+*.pyo
+*.pyd
+.env
 
 # Ignorar los archivos generados por npm y node_modules
 node_modules/
@@ -17,3 +20,22 @@ Thumbs.db
 # Ignorar configuraciones específicas de IDEs
 .vscode/
 .idea/
+
+# Ignorar todo en backend/data/
+backend/data/*
+
+# No ignorar el directorio image_library/
+!backend/data/image_library/
+
+# No ignorar el directorio image_library/
+!backend/data/water_marks/
+
+#No ignorar el readme
+!backend/data/README.md
+
+
+# Ignorar todo dentro de image_library/, excepto los archivos .gitkeep
+backend/data/image_library/*
+
+# No ignorar los archivos .gitkeep en image_library/
+!backend/data/image_library/.gitkeep

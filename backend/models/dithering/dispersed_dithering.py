@@ -7,57 +7,53 @@ class DispersedDitheringFilter(BaseFilter):
 
     def __init__(self, image):
         """
-        Inicializa el filtro de dithering con matriz "dispersed" con una imagen en escala de grises.
+        Inicializa el filtro de dithering con matriz "dispersed" optimizada utilizando NumPy.
         :param image: Objeto de imagen (PIL Image).
         """
         # Convertir la imagen a escala de grises usando el filtro correspondiente
         im_gray = GrayscaleFilter(image)
-        super().__init__(im_gray.apply_filter())  # Llamar al constructor de la clase base con la imagen en escala de grises
-        
+        gray_image = im_gray.apply_filter().convert('L')  # Asegurar que esté en modo 'L'
+        super().__init__(gray_image)  # Llamar al constructor de la clase base con la imagen en escala de grises
+
         self.width, self.height = self.image.size
-        
+
         # Definir la matriz "dispersed" de 3x3
         self.cluster_matrix = np.array([
             [1, 7, 4],
             [5, 8, 3],
             [6, 2, 9]
         ])
-        
-        # Escalar la matriz para el rango de 0 a 255 (cada valor de la matriz se multiplica por 255 // 9)
-        self.threshold_matrix = self.cluster_matrix * (255 // 9)
+
+        # Escalar la matriz para el rango de 0 a 255
+        self.threshold_matrix = self.cluster_matrix * (255 / (self.cluster_matrix.max() + 1))
 
     def apply_filter(self):
         """
-        Aplica el filtro de dithering utilizando la matriz "dispersed" de 3x3.
+        Aplica el filtro de dithering utilizando la matriz "dispersed" de 3x3 de manera optimizada con NumPy.
         :return: Imagen procesada con dithering.
         """
-        # Crear una nueva imagen para el resultado en blanco y negro
-        result_image = Image.new("L", (self.width, self.height))
-        result_pixels = result_image.load()
-        
-        # Obtener los píxeles de la imagen original
-        original_pixels = self.image.load()
+        # Convertir la imagen a un arreglo NumPy
+        image_array = np.array(self.image, dtype=np.uint8)
 
-        # Iterar sobre cada bloque de 3x3 en la imagen
-        for i in range(0, self.width, 3):
-            for j in range(0, self.height, 3):
-                # Iterar sobre cada píxel en el bloque 3x3
-                for x in range(3):
-                    for y in range(3):
-                        if i + x < self.width and j + y < self.height:
-                            # Leer el valor de brillo del píxel original
-                            pixel_value = original_pixels[i + x, j + y][0]
+        # Crear mapas de índices para las posiciones en la matriz 3x3
+        Y, X = np.indices((self.height, self.width))
+        cluster_indices_x = X % 3
+        cluster_indices_y = Y % 3
 
-                            # Escalar el valor del píxel entre 0 y 9 (dividir por 28)
-                            pixel_value_scaled = pixel_value // 28
+        # Obtener el mapa de umbrales correspondiente a cada píxel
+        threshold_map = self.threshold_matrix[cluster_indices_y, cluster_indices_x]
 
-                            # Comparar con el valor de la matriz
-                            threshold_value = self.cluster_matrix[x, y]
+        # Escalar los valores de píxeles al rango de 0 a 255 si no están ya escalados
+        # Si la imagen ya está en escala de grises de 0 a 255, este paso se omite
+        pixel_values = image_array.astype(np.float32)
 
-                            # Aplicar la regla de dithering
-                            if pixel_value_scaled < threshold_value:
-                                result_pixels[i + x, j + y] = 0  # Negro
-                            else:
-                                result_pixels[i + x, j + y] = 255  # Blanco
+        # Crear la máscara donde el valor del píxel es menor al umbral correspondiente
+        mask = pixel_values < threshold_map
+
+        # Asignar 0 (negro) donde la máscara es verdadera, 255 (blanco) donde es falsa
+        result_array = np.where(mask, 0, 255).astype(np.uint8)
+
+        # Convertir el arreglo de resultado a una imagen PIL en modo 'L'
+        result_image = Image.fromarray(result_array, mode='L')
 
         return result_image

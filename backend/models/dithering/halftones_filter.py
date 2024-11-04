@@ -1,11 +1,12 @@
 from PIL import Image, ImageDraw
 from models.base_filter import BaseFilter
 from models.filters.grayscale_filter import GrayscaleFilter
+import numpy as np
 import math
 
-class HalftonesFilter(BaseFilter):
+class HalftoneFilter(BaseFilter):
 
-    def __init__(self, image, num_variations, hd_flag):
+    def __init__(self, image, num_variations):
         """
         Inicializa el filtro de imágenes recursivas con una imagen,
         calcula el tamaño de la cuadrícula en función del tamaño de la imagen y un factor de escala,
@@ -20,12 +21,8 @@ class HalftonesFilter(BaseFilter):
         # Obtener dimensiones originales de la imagen
         width, height = self.image.size
 
-        if(hd_flag):
-            self.width = num_variations * width 
-            self.height = num_variations * height 
-        else:
-            self.width = (num_variations * (width // num_variations))
-            self.height = (num_variations * (height // num_variations ))
+        self.width = num_variations * width 
+        self.height = num_variations * height
 
         self.grid_dim = num_variations
 
@@ -46,26 +43,29 @@ class HalftonesFilter(BaseFilter):
         versiones = {}
         
         # Calcular el radio máximo para los círculos (que depende del tamaño de la cuadrícula)
-        max_radius = self.num_variations
-        
-        # Calcular el salto en el tamaño del radio según el número de variaciones
+        max_radius = self.num_variations  # Dividido por 2 para ajustarse al tamaño de la cuadrícula
+
+        # Invertir el índice para que un valor de gris más alto corresponda a un círculo más pequeño
         for i in range(self.num_variations):
             # Crear una imagen en blanco
-            circle_image = Image.new("RGB", (self.num_variations, self.num_variations), (255, 255, 255))
+            circle_image = Image.new("RGB", (self.grid_dim, self.grid_dim), (255, 255, 255))
             draw = ImageDraw.Draw(circle_image)
             
             # Calcular el radio del círculo
-            radius = max_radius * ((i) / self.num_variations)
+            # Invertimos i para que un valor de gris más alto tenga un radio más pequeño
+            inverted_i = self.num_variations - 1 - i
+            radius = max_radius * (inverted_i / (self.num_variations - 1))
             
             # Dibujar un círculo negro en el centro de la imagen
-            center_x, center_y = self.num_variations // 2, self.num_variations // 2
+            center = self.grid_dim // 2
             draw.ellipse(
-                (center_x - radius, center_y - radius, center_x + radius, center_y + radius),
+                (center - radius, center - radius, center + radius, center + radius),
                 fill=(0, 0, 0)
             )
             
             # Asignar la imagen generada a su valor de brillo correspondiente (representativo)
-            versiones[(self.num_variations - (i+1)) * (255 // self.num_variations)] = circle_image
+            brightness_value = int((255 * i) / (self.num_variations - 1))
+            versiones[brightness_value] = circle_image
 
         return versiones
 
@@ -76,43 +76,51 @@ class HalftonesFilter(BaseFilter):
         """
         # Obtener las versiones de la imagen con círculos de diferentes tamaños
         gray_variations = self.get_palette()
-
+        
         # Crear una imagen en blanco para la cuadrícula
         result_image = Image.new("RGB", (self.width, self.height))
-
+        
         # Imagen escalada al tamaño de la cuadrícula
         image_upscaled = self.image.resize((self.width, self.height))
-
-        # Iterar sobre cada cuadrícula
-        for i in range(0, self.width, self.grid_dim):
-            for j in range(0, self.height, self.grid_dim):
-                # Obtener el promedio del valor de brillo de la cuadrícula
-                avg_brightness = self.calculate_average_brightness(image_upscaled, i, j)
-                # Calcular el valor de escala de grises más cercano
-                grayscale_value = min(gray_variations, key=lambda x: abs(x - avg_brightness))
-                # Pegar la imagen correspondiente del diccionario de nuestra variaciones en la imagen recursiva
-                result_image.paste(gray_variations[grayscale_value], (i, j))
-
+        image_upscaled_data = np.array(image_upscaled)
+        
+        # Extraer el canal de escala de grises (suponiendo que R=G=B)
+        gray_data = image_upscaled_data[:, :, 0]
+        
+        # Calcular las dimensiones de los bloques
+        height_blocks = self.height // self.grid_dim
+        width_blocks = self.width // self.grid_dim
+        
+        # Redimensionar los datos de la imagen para crear bloques
+        gray_data_blocks = gray_data.reshape(height_blocks, self.grid_dim, width_blocks, self.grid_dim)
+        
+        # Calcular el brillo promedio para cada bloque
+        avg_brightness_blocks = gray_data_blocks.mean(axis=(1, 3))
+        
+        # Aplanar el array de brillo promedio para facilitar el cálculo
+        avg_brightness_flat = avg_brightness_blocks.flatten()
+        
+        # Obtener los valores de brillo disponibles
+        grayscale_values = np.array(list(gray_variations.keys()))
+        
+        # Calcular las diferencias y encontrar el valor de brillo más cercano
+        differences = np.abs(avg_brightness_flat[:, np.newaxis] - grayscale_values[np.newaxis, :])
+        indices = np.argmin(differences, axis=1)
+        
+        # Reconvertir los índices a la forma de la cuadrícula
+        indices_grid = indices.reshape(height_blocks, width_blocks)
+        
+        # Convertir grayscale_values y variation_images a listas para acceso rápido
+        grayscale_values_list = grayscale_values.tolist()
+        variation_images = [gray_variations[k] for k in grayscale_values_list]
+        
+        # Pegar las imágenes correspondientes en el resultado
+        for i in range(height_blocks):
+            for j in range(width_blocks):
+                idx = indices_grid[i, j]
+                variation_image = variation_images[idx]
+                x = j * self.grid_dim
+                y = i * self.grid_dim
+                result_image.paste(variation_image, (x, y))
+                
         return result_image
-
-    def calculate_average_brightness(self, image, x, y):
-        """
-        Método que calcula el brillo promedio de una cuadrícula en la imagen en escala de grises.
-        :param image: Imagen original.
-        :param x: Coordenada x de la cuadrícula.
-        :param y: Coordenada y de la cuadrícula.
-        :return: Valor promedio del brillo de la cuadrícula.
-        """
-        # Inicializar la variable para el brillo promedio
-        total_brightness = 0
-
-        # Iterar sobre la cuadrícula
-        for i in range(x, x + self.grid_dim):
-            for j in range(y, y + self.grid_dim):
-                # Obtener el valor de brillo (en escala de grises, r = g = b)
-                pixel = image.getpixel((i, j))
-                total_brightness += pixel[0]  # Solo necesitamos un canal, ya que es escala de grises
-
-        # Calcular el promedio de los valores de brillo
-        total_pixels = self.grid_dim * self.grid_dim
-        return total_brightness // total_pixels

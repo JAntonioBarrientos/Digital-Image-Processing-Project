@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import GrayscaleFilter from './filters/GrayscaleFilter';
 import GrayFilterWeighted from './filters/GrayFilterWeighted';
@@ -13,6 +13,7 @@ import RecursiveGrayFilter from './filters/RecursiveGrayFilter';
 import RecursiveColorFilter from './filters/RecursiveColorFilter';
 import WatermarkFilter from './filters/WatermarkFilter';
 import WatermarkFilterDiagonal from './filters/WatermarkFilterDiagonal';
+import RemoveRedWatermarkFilter from './filters/RemoveRedWatermarkFilter';
 import HalftoneFilter from './filters/HalftoneFilter';
 import RandomDithering from './filters/RandomDithering';
 import ClusteredDithering from './filters/ClusteredDithering';
@@ -21,26 +22,76 @@ import FloydSteinberg from './filters/FloydSteinberg';
 import OleoFilter from './filters/OleoFilter';
 import MinFilter from './filters/MinFilter';
 import MaxFilter from './filters/MaxFilter';
+import MosaicFilter from './filters/MosaicFilter';
 
 
 
 const App: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [originalImage, setOriginalImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null); // Filtro seleccionado
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null); // Categorías
-  const [isProcessing, setIsProcessing] = useState<boolean>(false); // Estado de procesamiento
-  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true); // Controla la visibilidad de la barra lateral
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
+  const [currentImage, setCurrentImage] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Función para manejar la carga de imágenes
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+  const documentationLinks: { [key: string]: { name: string; url: string } } = {
+    'documentation-tarea1': {
+      name: 'Tarea 1',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/dev/documentacion-implementacion/Tarea1.md',
+    },
+    'documentation-tarea2': {
+      name: 'Tarea 2',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea2.md',
+    },
+    'documentation-tarea3': {
+      name: 'Tarea 3',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea3.md',
+    },
+    'documentation-tarea4': {
+      name: 'Tarea 4',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea4.md',
+    },
+    'documentation-tarea5': {
+      name: 'Tarea 5',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea5.md',
+    },
+    'documentation-tarea6': {
+      name: 'Tarea 6',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea6.md',
+    },
+    'documentation-tarea7': {
+      name: 'Tarea 7',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Tarea7.md',
+    },
+    'documentation-proyecto': {
+      name: 'Proyecto',
+      url: 'https://github.com/JAntonioBarrientos/Digital-Image-Processing-Project/tree/main/documentacion-implementacion/Proyecto.md',
+    },
   };
+
+    // useEffect para actualizar selectedImage cuando processedImageUrl cambia
+    useEffect(() => {
+      const updateSelectedImage = async () => {
+        if (processedImageUrl) {
+          try {
+            const response = await fetch(processedImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'processed_image.jpg', { type: blob.type });
+            setSelectedImage(file);
+            setCurrentImage(file);
+          } catch (error) {
+            console.error('Error al convertir la URL a File:', error);
+          }
+        }
+      };
+  
+      updateSelectedImage();
+    }, [processedImageUrl]);
+  
 
   // Función para descargar la imagen procesada
   const downloadImage = () => {
@@ -52,9 +103,52 @@ const App: React.FC = () => {
     }
   };
 
+  // Función para manejar la carga de imágenes
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        setSelectedImage(file);
+        setOriginalImage(file); // Establecer la imagen original
+        setImagePreview(URL.createObjectURL(file));
+        setCurrentImage(file); // Establecer la imagen actual como la imagen cargada
+        setProcessedImageUrl(null); // Reiniciar la imagen procesada
+      }
+    };
+
   // Función para alternar la visibilidad de la barra lateral
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
+  };
+
+  // Función para reiniciar la imagen a la original
+    const resetImage = () => {
+      if (originalImage) {
+        setSelectedImage(originalImage);
+        setCurrentImage(originalImage);
+        setImagePreview(URL.createObjectURL(originalImage));
+        setProcessedImageUrl(null);
+        setSelectedFilter(null); // Opcional: deseleccionar el filtro actual
+      }
+    };
+
+    
+    // Limpieza de URLs de objetos para evitar fugas de memoria
+    useEffect(() => {
+      return () => {
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        if (processedImageUrl) {
+          URL.revokeObjectURL(processedImageUrl);
+        }
+      };
+    }, [imagePreview, processedImageUrl]);
+
+
+  // Función para capitalizar la primera letra (e.g., 'tarea1' -> 'Tarea1')
+  const capitalize = (s: string) => {
+    if (typeof s !== 'string') return '';
+    return s.charAt(0).toUpperCase() + s.slice(1);
   };
 
   return (
@@ -76,6 +170,7 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('grayscale')}>Escala de Grises</li>
               <li onClick={() => setSelectedFilter('gray-weighted')}>Filtro Ponderado</li>
               <li onClick={() => setSelectedFilter('mica')}>Filtro Mica</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea1')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -92,6 +187,7 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('sharpen')}>Filtro Sharpen</li>
               <li onClick={() => setSelectedFilter('emboss')}>Filtro Emboss</li>
               <li onClick={() => setSelectedFilter('mean')}>Filtro Promedio</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea2')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -104,6 +200,7 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('recursive-gray')}>Imagen recursiva escala de grises</li>
               <li onClick={() => setSelectedFilter('recursive-color')}>Imagen recursiva a color real</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea3')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -115,6 +212,8 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('watermark')}>Marca de agua</li>
               <li onClick={() => setSelectedFilter('watermark-diagonal')}>Marca de agua diagonal</li>
+              <li onClick={() => setSelectedFilter('remove-red-watermark')}>Eliminar marca de agua roja</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea4')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -129,6 +228,7 @@ const App: React.FC = () => {
               <li onClick={() => setSelectedFilter('clustered-dithering')}>Dithering ordenado</li>
               <li onClick={() => setSelectedFilter('dispersed-dithering')}>Dithering disperso</li>
               <li onClick={() => setSelectedFilter('floyd-steinberg')}>Dithering Floyd-Steinberg</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea5')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -139,6 +239,7 @@ const App: React.FC = () => {
           {expandedCategory === 'tarea6' && (
             <ul>
               <li onClick={() => setSelectedFilter('oleo')}>Filtro Oleo</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea6')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -150,6 +251,18 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('min')}>Filtro erosion Minimo</li>
               <li onClick={() => setSelectedFilter('max')}>Filtro erosion Máximo</li> 
+              <li onClick={() => setSelectedFilter('documentation-tarea7')}>Documentación</li>
+            </ul>
+          )}
+        </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'proyecto' ? null : 'proyecto')}>
+            Proyecto
+          </div>
+          {expandedCategory === 'proyecto' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('mosaicos')}>Filtro Mosaicos</li>
+              <li onClick={() => setSelectedFilter('documentation-proyecto')}>Documentación</li>
             </ul>
           )}
         </div>
@@ -289,6 +402,14 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
+            {selectedImage && selectedFilter === 'remove-red-watermark' && (
+              <RemoveRedWatermarkFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
             {selectedImage && selectedFilter === 'halftone' && (
               <HalftoneFilter
                 selectedImage={selectedImage}
@@ -353,13 +474,36 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
+            {selectedImage && selectedFilter === 'mosaicos' && (
+              <MosaicFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+                isProcessing={isProcessing} // Pasar isProcessing como prop
+              />
+            )}
 
-            {/* Botón para descargar la imagen procesada */}
-            {processedImageUrl && (
-              <button onClick={downloadImage} className="download-button">
-                Descargar Imagen Procesada
+
+            {/* Botón para reiniciar la imagen a la original */}
+            {originalImage && (
+              <button onClick={resetImage} className="reset-button">
+                Reiniciar Imagen
               </button>
             )}
+
+          {/* Sección de Documentación Siempre Desplegable */}
+          {selectedFilter && selectedFilter.startsWith('documentation') && documentationLinks[selectedFilter] && (
+            <div className="documentation-section">
+              <h3>Documentación de {documentationLinks[selectedFilter].name}</h3>
+              <div className="documentation-content">
+                <p>Esta sección contiene la explicación del filtro correspondiente.</p>
+                <a href={documentationLinks[selectedFilter].url} target="_blank" rel="noopener noreferrer">
+                  Ver documentación en GitHub
+                </a>
+              </div>
+            </div>
+          )}
           </div>
         </div>
       </main>

@@ -12,13 +12,16 @@ from models.recursiveImage.recursive_images_gray import RecursiveImagesGray
 from models.recursiveImage.recursive_images_color import RecursiveImagesColor
 from models.watermark.water_mark_filter import WatermarkFilter
 from models.watermark.water_mark_filter_diagonal import WatermarkFilterDiagonal
-from models.dithering.halftones_filter import HalftonesFilter
+from models.watermark.remove_red_watermark import RemoveRedWatermarkFilter
+from models.dithering.halftones_filter import HalftoneFilter
 from models.dithering.random_dithering_filter import RandomDitheringFilter
 from models.dithering.clustered_dithering import ClusteredDitheringFilter
 from models.dithering.dispersed_dithering import DispersedDitheringFilter
 from models.dithering.floyd_steinberg import FloydSteinbergDitheringFilter
 from models.oleo.oleo_filter import OleoFilter
 from models.erosion.min_max import MinMaxKernelFilter
+from models.mosaico.mosaic_filter import MosaicFilter
+
 
 class ImageService:
     def __init__(self, image_file):
@@ -71,13 +74,16 @@ class ImageService:
         return mean_filter.apply_filter()
 
     # Método para aplicar el filtro de imágenes recursivas en escala de grises
-    def apply_recursive_gray_filter(self, n_variantes, grid_factor):
-        recursive_image = RecursiveImagesGray(self.image, n_variantes, grid_factor)
-        return recursive_image.apply_filter()
+    def apply_recursive_gray_filter(self, n_variantes, upscale_factor, grid_rows, grid_cols):
+        # Lógica para aplicar el filtro con los nuevos parámetros
+        recursive_filter = RecursiveImagesGray(
+            self.image, n_variantes, upscale_factor, grid_rows, grid_cols
+        )
+        return recursive_filter.apply_filter()
 
     # Método para aplicar el filtro de imágenes recursivas en color
-    def apply_recursive_color_filter(self, grid_factor):
-        recursive_image = RecursiveImagesColor(self.image, grid_factor)
+    def apply_recursive_color_filter(self, upscale_factor, grid_rows, grid_cols):
+        recursive_image = RecursiveImagesColor(self.image, upscale_factor, grid_rows, grid_cols)
         return recursive_image.apply_filter()
 
     # Método para aplicar el filtro de marca de agua
@@ -91,8 +97,8 @@ class ImageService:
         return watermark_filter_diagonal.apply_filter()
 
     # Método para aplicar el filtro de dithering
-    def apply_halftones_filter(self, num_variaciones, full_resolution):
-        halftones_filter = HalftonesFilter(self.image, num_variaciones, full_resolution)
+    def apply_halftones_filter(self, num_variaciones):
+        halftones_filter = HalftoneFilter(self.image, num_variaciones)
         return halftones_filter.apply_filter()
 
     def apply_random_dithering_filter(self):
@@ -118,5 +124,15 @@ class ImageService:
     def apply_min_max_filter(self, radius, mode):
         min_max_filter = MinMaxKernelFilter(self.image)
         return min_max_filter.apply_filter(radius, mode)
+
+
+    def apply_mosaic_filter(self, block_width, block_height, upscale_factor):
+        mosaic_filter = MosaicFilter(self.image)
+        return mosaic_filter.apply_filter(block_width, block_height, upscale_factor)
+
+    def remove_red_watermark(self, sensitivity=100):
+        filter = RemoveRedWatermarkFilter(self.image, sensitivity)
+        processed_image = filter.apply_filter()
+        return processed_image
 
 

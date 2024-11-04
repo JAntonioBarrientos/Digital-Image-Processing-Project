@@ -92,7 +92,9 @@ const WatermarkFilter: React.FC<WatermarkFilterProps> = ({
         <label>
           Tamaño de fuente ({fontSize}px):
           <input
-            type="number"
+            type="range"
+            min="10"
+            max="250"
             value={fontSize}
             onChange={(e) => setFontSize(parseInt(e.target.value))}
             style={{ width: '25%' }}
