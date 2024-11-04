@@ -56,7 +56,7 @@ const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({
       setProcessedImageUrl(imageUrl); // Guardar la URL de la imagen procesada
     } catch (error) {
       console.error('Error al aplicar el filtro:', error);
-      alert('Hubo un error al aplicar el filtro. Por favor, intenta de nuevo con un valor mas pequeño del Upscale Factor.');
+      alert('Hubo un error al aplicar el filtro. Por favor, intenta de nuevo con un valor mas pequeño de Upscale-Factor ó la reaplicación del filtro provocó una imagen muy grande.');
       alert('Reinicie la aplicación para intentar de nuevo.');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine

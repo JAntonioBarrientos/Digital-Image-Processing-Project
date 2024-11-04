@@ -15,9 +15,9 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
   setIsProcessing,
   isProcessing,
 }) => {
-  const [blockWidth, setBlockWidth] = useState<number>(60);
-  const [blockHeight, setBlockHeight] = useState<number>(60);
-  const [upscaleFactor, setUpscaleFactor] = useState<number>(4);
+  const [blockWidth, setBlockWidth] = useState<number>(50);
+  const [blockHeight, setBlockHeight] = useState<number>(50);
+  const [upscaleFactor, setUpscaleFactor] = useState<number>(6);
   const [isBackendPreprocessing, setIsBackendPreprocessing] = useState<boolean>(false);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       setProcessedImageUrl(imageUrl);
     } catch (error) {
       console.error('Error al aplicar el filtro de Mosaico:', error);
-      alert('Hubo un error al aplicar el filtro de Mosaico. Por favor, intenta de nuevo con un valor mas pequeño del Upscale Factor.');
+      alert('Hubo un error al aplicar el filtro. Por favor, intenta de nuevo con un valor mas pequeño de Upscale-Factor ó la reaplicación del filtro provocó una imagen muy grande.');
       alert('Reinicie la aplicación para intentar de nuevo.');
     } finally {
       setIsProcessing(false);
@@ -108,18 +108,18 @@ const MosaicFilter: React.FC<MosaicFilterProps> = ({
       )}
 
       <label>
-        <b>Upscale Factor de las dimensiones: {upscaleFactor}</b> <br />
+        <b>Upscale Factor (Aumento del tamaño de la imagen): {upscaleFactor}</b> <br />
         <input
           type="range"
           min="1"
-          max="8"
+          max="9"
           value={upscaleFactor}
           onChange={(e) => setUpscaleFactor(parseInt(e.target.value) || 1)}
           disabled={isBackendPreprocessing}
         />
         <b>Advertencia:</b> Valores altos pueden causar que la imagen <br />
         procesada sea muy grande y si no hay suficiente <br />
-        memoria RAM, el navegador puede congelarse. <br />
+        memoria RAM libre el proceso se cancelará. <br />
       </label>
       <br />
       <label>

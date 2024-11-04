@@ -12,6 +12,7 @@ from scipy.spatial import cKDTree  # Importar cKDTree para KD-Tree eficiente
 from typing import Optional, Dict, Tuple, List
 from functools import lru_cache
 import gc
+import math
 
 from status import preprocessing_status
 
@@ -353,8 +354,8 @@ class MosaicFilter(BaseFilter):
         image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)  # Convertir a BGR
 
         # Ampliar la imagen según el upscale_factor utilizando OpenCV
-        new_width: int = image_array.shape[1] * upscale_factor
-        new_height: int = image_array.shape[0] * upscale_factor
+        new_width: int = round(image_array.shape[1] * math.sqrt(upscale_factor))
+        new_height: int = round(image_array.shape[0] * math.sqrt(upscale_factor))
         resized_image: np.ndarray = cv2.resize(
             image_array,
             (new_width, new_height),
