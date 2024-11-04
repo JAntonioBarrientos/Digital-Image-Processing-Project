@@ -14,7 +14,7 @@ const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({
   setIsProcessing,
 }) => {
   // Valores por defecto para los inputs
-  const [nVariantes, setNVariantes] = useState<number>(20); // Valor por defecto de n_variantes
+  const [nVariantes, setNVariantes] = useState<number>(32); // Valor por defecto de n_variantes
   const [upscaleFactor, setUpscaleFactor] = useState<number>(2); // Valor por defecto de upscale_factor
   const [gridRows, setGridRows] = useState<number>(50); // Valor por defecto de grid_rows
   const [gridCols, setGridCols] = useState<number>(50); // Valor por defecto de grid_cols
@@ -85,7 +85,7 @@ const RecursiveGrayFilter: React.FC<RecursiveGrayFilterProps> = ({
             value={upscaleFactor}
             onChange={(e) => setUpscaleFactor(parseInt(e.target.value))}
             min="1"
-            max="8"
+            max="4"
             style={{ width: '20%' }}
           />
         <br />  

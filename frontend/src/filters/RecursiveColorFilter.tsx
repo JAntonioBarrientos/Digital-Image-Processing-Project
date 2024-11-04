@@ -72,7 +72,7 @@ const RecursiveColorFilter: React.FC<RecursiveColorFilterProps> = ({
             value={upscaleFactor}
             onChange={(e) => setUpscaleFactor(parseInt(e.target.value))}
             min="1"
-            max="8"
+            max="4"
             style={{ width: '20%' }}
           />
         <br />  
