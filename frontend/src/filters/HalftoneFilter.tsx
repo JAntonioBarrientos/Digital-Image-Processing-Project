@@ -48,6 +48,8 @@ const HalftoneFilter: React.FC<HalftoneFilterProps> = ({ selectedImage, setImage
       setProcessedImageUrl(imageUrl); // Guardar la URL de la imagen procesada
     } catch (error) {
       console.error('Error al aplicar el filtro:', error);
+      alert('Hubo un error al aplicar el filtro. Por favor, intenta de nuevo con un valor mas pequeño de semi-tonos.');
+      alert('Reinicie la aplicación para intentar de nuevo.');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
