@@ -24,6 +24,10 @@ import MinFilter from './filters/MinFilter';
 import MaxFilter from './filters/MaxFilter';
 import MosaicFilter from './filters/MosaicFilter';
 import ResizeFilter from './filters/ResizeFilter';
+import ImagenConMsGrises from './filters/ImagenConMsGrises';
+import ImagenConMsColor from './filters/ImagenConMsColor';
+import ImagenConLetrasDistintosGrises from './filters/ImagenConLetrasDistintosGrises';
+import ImagenConLetrasDistintosColor from './filters/ImagenConLetrasDistintosColor';
 
 
 const App: React.FC = () => {
@@ -274,6 +278,20 @@ const App: React.FC = () => {
             </ul>
           )}
         </div>
+        <div className="category">
+          <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'tarea9' ? null : 'tarea9')}>
+            Tarea 9
+          </div>
+          {expandedCategory === 'tarea9' && (
+            <ul>
+              <li onClick={() => setSelectedFilter('letras-m-gris')}>Imagenes con M's tonos de gris</li>
+              <li onClick={() => setSelectedFilter('letras-m-color')}>Imagenes con M's a color</li>
+              <li onClick={() => setSelectedFilter('letras-con-distintos-gris')}>Imagenes con 'MNH#QUAD0Y2$%+. ' tonos de gris</li>
+              <li onClick={() => setSelectedFilter('letras-con-distintos-color')}>Imagenes con 'MNH#QUAD0Y2$%+. ' a color</li>
+              <li onClick={() => setSelectedFilter('documentation-tarea9')}>Documentación</li>
+            </ul>
+          )}
+        </div>
 
         <div className="category">
           <div className="category-header" onClick={() => setExpandedCategory(expandedCategory === 'proyecto' ? null : 'proyecto')}>
@@ -505,6 +523,38 @@ const App: React.FC = () => {
             )}
             {selectedImage && selectedFilter === 'resize' && (
               <ResizeFilter
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'letras-m-gris' && (
+              <ImagenConMsGrises
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'letras-m-color' && (
+              <ImagenConMsColor
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'letras-con-distintos-gris' && (
+              <ImagenConLetrasDistintosGrises
+                selectedImage={selectedImage}
+                setImagePreview={setImagePreview}
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {selectedImage && selectedFilter === 'letras-con-distintos-color' && (
+              <ImagenConLetrasDistintosColor
                 selectedImage={selectedImage}
                 setImagePreview={setImagePreview}
                 setProcessedImageUrl={setProcessedImageUrl}
