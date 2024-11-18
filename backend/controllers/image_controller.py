@@ -11,6 +11,11 @@ import uuid
 from werkzeug.utils import secure_filename
 
 from models.imagenesConLetras.letras_m_gris import LetrasMsGris
+from models.imagenesConLetras.letras_m_color import LetrasMColor
+from models.imagenesConLetras.letras_distintas_gris import LetrasDistintasGris
+from models.imagenesConLetras.letras_distintas_color import LetrasDistintasColor
+from models.imagenesConLetras.letras_frase_gris import LetrasFraseGris
+from models.imagenesConLetras.letras_frase_color import LetrasFraseColor
 
 
 
@@ -957,14 +962,475 @@ def apply_letras_ms_gris():
         print(f"Error al aplicar el filtro LetrasMsGris: {e}")
         return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
 
-# Añadir una nueva ruta al Blueprint para servir los archivos HTML generados
+
+
+@image_controller.route('/apply-letras-m-color', methods=['POST'])
+def apply_letras_m_color():
+    """
+    Ruta para aplicar el filtro LetrasMColor a una imagen subida.
+    Recibe una imagen y las dimensiones del grid, genera un archivo HTML con 'M's coloreadas
+    y lo guarda en la carpeta data/imagen_con_letras/.
+
+    Retorna una respuesta JSON con el estado y la URL al archivo HTML generado.
+    """
+    try:
+        # Verificar si se ha subido un archivo de imagen
+        if 'image' not in request.files:
+            return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+
+        image_file = request.files['image']
+
+        # Verificar que el archivo tenga un nombre seguro
+        filename = secure_filename(image_file.filename)
+        if filename == '':
+            return jsonify({"error": "Nombre de archivo inválido"}), 400
+
+        # Obtener las dimensiones del grid desde el formulario
+        try:
+            grid_width = int(request.form['grid_width'])
+            grid_height = int(request.form['grid_height'])
+        except (ValueError, KeyError):
+            return jsonify({"error": "Dimensiones del grid inválidas o faltantes"}), 400
+
+        # Validar que las dimensiones del grid sean números positivos mayores que cero
+        if grid_width <= 0 or grid_height <= 0:
+            return jsonify({"error": "Las dimensiones del grid deben ser números positivos mayores que cero"}), 400
+
+        # Opcional: Validar el tipo de archivo (por ejemplo, permitir solo JPEG y PNG)
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'bmp', 'gif'}
+        if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({"error": "Tipo de archivo no permitido"}), 400
+
+        # Crear un nombre único para el archivo HTML generado
+        base_name, _ = os.path.splitext(filename)
+        unique_id = uuid.uuid4().hex[:8]  # Genera un ID único de 8 caracteres
+        output_html_name = f"{base_name}_{unique_id}_letras_m_color.html"
+
+        # Definir la ruta de salida para el archivo HTML
+        output_dir = os.path.join('data', 'imagen_con_letras')  # Directorio único
+        output_html_path = os.path.join(output_dir, output_html_name)
+
+        # Asegurar que el directorio de salida exista
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Guardar la imagen subida en memoria
+        image_stream = BytesIO()
+        image_file.save(image_stream)
+        image_stream.seek(0)  # Reiniciar el puntero al inicio del flujo
+
+        # Iniciar el tiempo de procesamiento
+        start_time = time.time()
+
+        # Crear una instancia de LetrasMColor
+        letras_m_color = LetrasMColor(
+            image_path=image_stream,  # Pasar el objeto BytesIO
+            grid_width=grid_width,
+            grid_height=grid_height,
+            output_html_name=output_html_name
+        )
+
+        # Aplicar el filtro y generar el archivo HTML
+        letras_m_color.apply_filter()
+
+        # Calcular el tiempo de procesamiento
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo de procesamiento del filtro LetrasMColor: {elapsed_time:.2f} segundos")
+
+        # Generar una URL para acceder al archivo HTML generado
+        # Utilizar url_for para generar una URL absoluta
+        html_url = url_for('image_controller.serve_html_file', filename=output_html_name, _external=True)
+
+        # Retornar una respuesta JSON con el estado y la ruta al archivo HTML generado
+        return jsonify({
+            "message": "Archivo HTML generado exitosamente",
+            "html_url": html_url,
+            "processing_time_seconds": round(elapsed_time, 2)
+        }), 200
+
+    except Exception as e:
+        # Manejo de errores generales
+        print(f"Error al aplicar el filtro LetrasMColor: {e}")
+        return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
+
+@image_controller.route('/apply-letras-distintas-gris', methods=['POST'])
+def apply_letras_distintas_gris():
+    """
+    Ruta para aplicar el filtro LetrasDistintasGris a una imagen subida.
+    Recibe una imagen y las dimensiones del grid, genera un archivo HTML con caracteres variados
+    según el promedio de gris y lo guarda en la carpeta data/imagen_con_letras/.
+
+    Retorna una respuesta JSON con el estado y la URL al archivo HTML generado.
+    """
+    try:
+        # Verificar si se ha subido un archivo de imagen
+        if 'image' not in request.files:
+            return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+
+        image_file = request.files['image']
+
+        # Verificar que el archivo tenga un nombre seguro
+        filename = secure_filename(image_file.filename)
+        if filename == '':
+            return jsonify({"error": "Nombre de archivo inválido"}), 400
+
+        # Obtener las dimensiones del grid desde el formulario
+        try:
+            grid_width = int(request.form['grid_width'])
+            grid_height = int(request.form['grid_height'])
+        except (ValueError, KeyError):
+            return jsonify({"error": "Dimensiones del grid inválidas o faltantes"}), 400
+
+        # Validar que las dimensiones del grid sean números positivos mayores que cero
+        if grid_width <= 0 or grid_height <= 0:
+            return jsonify({"error": "Las dimensiones del grid deben ser números positivos mayores que cero"}), 400
+
+        # Opcional: Validar el tipo de archivo (por ejemplo, permitir solo JPEG y PNG)
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'bmp', 'gif'}
+        if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({"error": "Tipo de archivo no permitido"}), 400
+
+        # Crear un nombre único para el archivo HTML generado
+        base_name, _ = os.path.splitext(filename)
+        unique_id = uuid.uuid4().hex[:8]  # Genera un ID único de 8 caracteres
+        output_html_name = f"{base_name}_{unique_id}_letras_distintas_gris.html"
+
+        # Definir la ruta de salida para el archivo HTML
+        output_dir = os.path.join('data', 'imagen_con_letras')  # Directorio único
+        output_html_path = os.path.join(output_dir, output_html_name)
+
+        # Asegurar que el directorio de salida exista
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Guardar la imagen subida en memoria
+        image_stream = BytesIO()
+        image_file.save(image_stream)
+        image_stream.seek(0)  # Reiniciar el puntero al inicio del flujo
+
+        # Iniciar el tiempo de procesamiento
+        start_time = time.time()
+
+        # Crear una instancia de LetrasDistintasGris
+        letras_distintas_gris = LetrasDistintasGris(
+            image_path=image_stream,  # Pasar el objeto BytesIO
+            grid_width=grid_width,
+            grid_height=grid_height,
+            output_html_name=output_html_name
+        )
+
+        # Aplicar el filtro y generar el archivo HTML
+        letras_distintas_gris.apply_filter()
+
+        # Calcular el tiempo de procesamiento
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo de procesamiento del filtro LetrasDistintasGris: {elapsed_time:.2f} segundos")
+
+        # Generar una URL para acceder al archivo HTML generado
+        # Utilizar url_for para generar una URL absoluta
+        html_url = url_for('image_controller.serve_html_file', filename=output_html_name, _external=True)
+
+        # Retornar una respuesta JSON con el estado y la ruta al archivo HTML generado
+        return jsonify({
+            "message": "Archivo HTML generado exitosamente",
+            "html_url": html_url,
+            "processing_time_seconds": round(elapsed_time, 2)
+        }), 200
+
+    except Exception as e:
+        # Manejo de errores generales
+        print(f"Error al aplicar el filtro LetrasDistintasGris: {e}")
+        return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
+
+
+
+@image_controller.route('/apply-letras-distintas-color', methods=['POST'])
+def apply_letras_distintas_color():
+    """
+    Ruta para aplicar el filtro LetrasDistintasColor a una imagen subida.
+    Recibe una imagen y las dimensiones del grid, genera un archivo HTML con caracteres variados y coloreados
+    según el promedio de gris y RGB, y lo guarda en la carpeta data/imagen_con_letras/.
+
+    Retorna una respuesta JSON con el estado y la URL al archivo HTML generado.
+    """
+    try:
+        # Verificar si se ha subido un archivo de imagen
+        if 'image' not in request.files:
+            return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+
+        image_file = request.files['image']
+
+        # Verificar que el archivo tenga un nombre seguro
+        filename = secure_filename(image_file.filename)
+        if filename == '':
+            return jsonify({"error": "Nombre de archivo inválido"}), 400
+
+        # Obtener las dimensiones del grid desde el formulario
+        try:
+            grid_width = int(request.form['grid_width'])
+            grid_height = int(request.form['grid_height'])
+        except (ValueError, KeyError):
+            return jsonify({"error": "Dimensiones del grid inválidas o faltantes"}), 400
+
+        # Validar que las dimensiones del grid sean números positivos mayores que cero
+        if grid_width <= 0 or grid_height <= 0:
+            return jsonify({"error": "Las dimensiones del grid deben ser números positivos mayores que cero"}), 400
+
+        # Opcional: Validar el tipo de archivo (por ejemplo, permitir solo JPEG y PNG)
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'bmp', 'gif'}
+        if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({"error": "Tipo de archivo no permitido"}), 400
+
+        # Crear un nombre único para el archivo HTML generado
+        base_name, _ = os.path.splitext(filename)
+        unique_id = uuid.uuid4().hex[:8]  # Genera un ID único de 8 caracteres
+        output_html_name = f"{base_name}_{unique_id}_letras_distintas_color.html"
+
+        # Definir la ruta de salida para el archivo HTML
+        output_dir = os.path.join('data', 'imagen_con_letras')  # Directorio único
+        output_html_path = os.path.join(output_dir, output_html_name)
+
+        # Asegurar que el directorio de salida exista
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Guardar la imagen subida en memoria
+        image_stream = BytesIO()
+        image_file.save(image_stream)
+        image_stream.seek(0)  # Reiniciar el puntero al inicio del flujo
+
+        # Iniciar el tiempo de procesamiento
+        start_time = time.time()
+
+        # Crear una instancia de LetrasDistintasColor
+        letras_distintas_color = LetrasDistintasColor(
+            image_path=image_stream,  # Pasar el objeto BytesIO
+            grid_width=grid_width,
+            grid_height=grid_height,
+            output_html_name=output_html_name
+        )
+
+        # Aplicar el filtro y generar el archivo HTML
+        letras_distintas_color.apply_filter()
+
+        # Calcular el tiempo de procesamiento
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo de procesamiento del filtro LetrasDistintasColor: {elapsed_time:.2f} segundos")
+
+        # Generar una URL para acceder al archivo HTML generado
+        # Utilizar url_for para generar una URL absoluta
+        html_url = url_for('image_controller.serve_html_file', filename=output_html_name, _external=True)
+
+        # Retornar una respuesta JSON con el estado y la ruta al archivo HTML generado
+        return jsonify({
+            "message": "Archivo HTML generado exitosamente",
+            "html_url": html_url,
+            "processing_time_seconds": round(elapsed_time, 2)
+        }), 200
+
+    except Exception as e:
+        # Manejo de errores generales
+        print(f"Error al aplicar el filtro LetrasDistintasColor: {e}")
+        return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
+
+
+
+@image_controller.route('/apply-letras-frase-gris', methods=['POST'])
+def apply_letras_frase_gris():
+    """
+    Ruta para aplicar el filtro LetrasFraseGris a una imagen subida.
+    Recibe una imagen, las dimensiones del grid y una frase, genera un archivo HTML con caracteres de la frase
+    coloreados según el promedio de gris de cada celda y lo guarda en la carpeta data/imagen_con_letras/.
+
+    Retorna una respuesta JSON con el estado y la URL al archivo HTML generado.
+    """
+    try:
+        # Verificar si se ha subido un archivo de imagen
+        if 'image' not in request.files:
+            return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+
+        image_file = request.files['image']
+
+        # Verificar que el archivo tenga un nombre seguro
+        filename = secure_filename(image_file.filename)
+        if filename == '':
+            return jsonify({"error": "Nombre de archivo inválido"}), 400
+
+        # Obtener las dimensiones del grid y la frase desde el formulario
+        try:
+            grid_width = int(request.form['grid_width'])
+            grid_height = int(request.form['grid_height'])
+            phrase = request.form['phrase']
+        except (ValueError, KeyError):
+            return jsonify({"error": "Dimensiones del grid o frase inválidas o faltantes"}), 400
+
+        # Validar que las dimensiones del grid sean números positivos mayores que cero
+        if grid_width <= 0 or grid_height <= 0:
+            return jsonify({"error": "Las dimensiones del grid deben ser números positivos mayores que cero"}), 400
+
+        # Validar que la frase no esté vacía
+        if not phrase.strip():
+            return jsonify({"error": "La frase no puede estar vacía"}), 400
+
+        # Opcional: Validar el tipo de archivo (por ejemplo, permitir solo JPEG y PNG)
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'bmp', 'gif'}
+        if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({"error": "Tipo de archivo no permitido"}), 400
+
+        # Crear un nombre único para el archivo HTML generado
+        base_name, _ = os.path.splitext(filename)
+        unique_id = uuid.uuid4().hex[:8]  # Genera un ID único de 8 caracteres
+        output_html_name = f"{base_name}_{unique_id}_letras_frase_gris.html"
+
+        # Definir la ruta de salida para el archivo HTML
+        output_dir = os.path.join('data', 'imagen_con_letras')  # Directorio único
+        output_html_path = os.path.join(output_dir, output_html_name)
+
+        # Asegurar que el directorio de salida exista
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Guardar la imagen subida en memoria
+        image_stream = BytesIO()
+        image_file.save(image_stream)
+        image_stream.seek(0)  # Reiniciar el puntero al inicio del flujo
+
+        # Iniciar el tiempo de procesamiento
+        start_time = time.time()
+
+        # Crear una instancia de LetrasFraseGris
+        letras_frase_gris = LetrasFraseGris(
+            image_path=image_stream,  # Pasar el objeto BytesIO
+            grid_width=grid_width,
+            grid_height=grid_height,
+            phrase=phrase,
+            output_html_name=output_html_name
+        )
+
+        # Aplicar el filtro y generar el archivo HTML
+        letras_frase_gris.apply_filter()
+
+        # Calcular el tiempo de procesamiento
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo de procesamiento del filtro LetrasFraseGris: {elapsed_time:.2f} segundos")
+
+        # Generar una URL para acceder al archivo HTML generado
+        # Utilizar url_for para generar una URL absoluta
+        html_url = url_for('image_controller.serve_html_file', filename=output_html_name, _external=True)
+
+        # Retornar una respuesta JSON con el estado y la ruta al archivo HTML generado
+        return jsonify({
+            "message": "Archivo HTML generado exitosamente",
+            "html_url": html_url,
+            "processing_time_seconds": round(elapsed_time, 2)
+        }), 200
+
+    except Exception as e:
+        # Manejo de errores generales
+        print(f"Error al aplicar el filtro LetrasFraseGris: {e}")
+        return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
+
+
+@image_controller.route('/apply-letras-frase-color', methods=['POST'])
+def apply_letras_frase_color():
+    """
+    Ruta para aplicar el filtro LetrasFraseColor a una imagen subida.
+    Recibe una imagen, las dimensiones del grid y una frase, genera un archivo HTML con caracteres de la frase
+    coloreados según el promedio RGB de cada celda y lo guarda en la carpeta data/imagen_con_letras/.
+
+    Retorna una respuesta JSON con el estado y la URL al archivo HTML generado.
+    """
+    try:
+        # Verificar si se ha subido un archivo de imagen
+        if 'image' not in request.files:
+            return jsonify({"error": "No se ha subido ningún archivo de imagen"}), 400
+
+        image_file = request.files['image']
+
+        # Verificar que el archivo tenga un nombre seguro
+        filename = secure_filename(image_file.filename)
+        if filename == '':
+            return jsonify({"error": "Nombre de archivo inválido"}), 400
+
+        # Obtener las dimensiones del grid y la frase desde el formulario
+        try:
+            grid_width = int(request.form['grid_width'])
+            grid_height = int(request.form['grid_height'])
+            phrase = request.form['phrase']
+        except (ValueError, KeyError):
+            return jsonify({"error": "Dimensiones del grid o frase inválidas o faltantes"}), 400
+
+        # Validar que las dimensiones del grid sean números positivos mayores que cero
+        if grid_width <= 0 or grid_height <= 0:
+            return jsonify({"error": "Las dimensiones del grid deben ser números positivos mayores que cero"}), 400
+
+        # Validar que la frase no esté vacía
+        if not phrase.strip():
+            return jsonify({"error": "La frase no puede estar vacía"}), 400
+
+        # Opcional: Validar el tipo de archivo (por ejemplo, permitir solo JPEG y PNG)
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'bmp', 'gif'}
+        if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({"error": "Tipo de archivo no permitido"}), 400
+
+        # Crear un nombre único para el archivo HTML generado
+        base_name, _ = os.path.splitext(filename)
+        unique_id = uuid.uuid4().hex[:8]  # Genera un ID único de 8 caracteres
+        output_html_name = f"{base_name}_{unique_id}_letras_frase_color.html"
+
+        # Definir la ruta de salida para el archivo HTML
+        output_dir = os.path.join('data', 'imagen_con_letras')  # Directorio único
+        output_html_path = os.path.join(output_dir, output_html_name)
+
+        # Asegurar que el directorio de salida exista
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Guardar la imagen subida en memoria
+        image_stream = BytesIO()
+        image_file.save(image_stream)
+        image_stream.seek(0)  # Reiniciar el puntero al inicio del flujo
+
+        # Iniciar el tiempo de procesamiento
+        start_time = time.time()
+
+        # Crear una instancia de LetrasFraseColor
+        letras_frase_color = LetrasFraseColor(
+            image_path=image_stream,  # Pasar el objeto BytesIO
+            grid_width=grid_width,
+            grid_height=grid_height,
+            phrase=phrase,
+            output_html_name=output_html_name
+        )
+
+        # Aplicar el filtro y generar el archivo HTML
+        letras_frase_color.apply_filter()
+
+        # Calcular el tiempo de procesamiento
+        elapsed_time = time.time() - start_time
+        print(f"Tiempo de procesamiento del filtro LetrasFraseColor: {elapsed_time:.2f} segundos")
+
+        # Generar una URL para acceder al archivo HTML generado
+        # Utilizar url_for para generar una URL absoluta
+        html_url = url_for('image_controller.serve_html_file', filename=output_html_name, _external=True)
+
+        # Retornar una respuesta JSON con el estado y la ruta al archivo HTML generado
+        return jsonify({
+            "message": "Archivo HTML generado exitosamente",
+            "html_url": html_url,
+            "processing_time_seconds": round(elapsed_time, 2)
+        }), 200
+
+    except Exception as e:
+        # Manejo de errores generales
+        print(f"Error al aplicar el filtro LetrasFraseColor: {e}")
+        return jsonify({"error": f"Ocurrió un error durante el procesamiento: {str(e)}"}), 500
+
+
+
 @image_controller.route('/data/imagen_con_letras/<path:filename>', methods=['GET'])
 def serve_html_file(filename):
     """
     Sirve archivos HTML desde la carpeta data/imagen_con_letras/.
     """
     data_dir = os.path.join('data', 'imagen_con_letras')
-    # Validar que el archivo exista en el directorio
-    if not os.path.isfile(os.path.join(data_dir, filename)):
+    file_path = os.path.join(data_dir, filename)
+    if not os.path.isfile(file_path):
         return jsonify({"error": "Archivo no encontrado"}), 404
-    return send_file(os.path.join(data_dir, filename), mimetype='text/html')
+    return send_file(file_path, mimetype='text/html')
+

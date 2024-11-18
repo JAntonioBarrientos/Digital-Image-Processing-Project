@@ -1,13 +1,13 @@
-// src/filters/ImagenConMsGrises.tsx
+// src/filters/ImagenConDistintasGris.tsx
 import React, { useState } from 'react';
 
-interface ImagenConMsGrisesProps {
-  selectedImage: File | null; // Ahora siempre será la imagen original
+interface ImagenConDistintasGrisProps {
+  selectedImage: File | null;
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
 }
 
-const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
+const ImagenConDistintasGris: React.FC<ImagenConDistintasGrisProps> = ({
   selectedImage,
   setProcessedImageUrl,
   setIsProcessing,
@@ -33,14 +33,14 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
     formData.append('grid_height', gridHeight.toString());
 
     try {
-      const response = await fetch('http://localhost:5000/apply-letras-ms-gris', {
+      const response = await fetch('http://localhost:5000/apply-letras-distintas-gris', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al aplicar el filtro LetrasMsGris');
+        throw new Error(errorData.error || 'Error al aplicar el filtro LetrasDistintasGris');
       }
 
       const data = await response.json();
@@ -51,7 +51,7 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         throw new Error('Respuesta inválida del servidor');
       }
     } catch (error: any) {
-      console.error('Error al aplicar el filtro LetrasMsGris:', error);
+      console.error('Error al aplicar el filtro LetrasDistintasGris:', error);
       setError(error.message || 'Ocurrió un error inesperado');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
@@ -60,7 +60,7 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
 
   return (
     <div>
-      <h3>Aplicar Filtro Letras M en Gris</h3>
+      <h3>Aplicar Filtro Letras Distintas en Gris</h3>
       <label>
         <b>Ancho del Grid (píxeles):</b>
         <input
@@ -81,7 +81,7 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         />
       </label>
       <br />
-      <button onClick={applyFilter}>Aplicar Filtro Letras M en Gris</button>
+      <button onClick={applyFilter}>Aplicar Filtro Letras Distintas en Gris</button>
 
       {/* Mostrar mensajes de error */}
       {error && <p className="error-message">{error}</p>}
@@ -91,13 +91,13 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         <div className="html-preview">
           <h4>Resultado:</h4>
           <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
-            Ver Imagen en M's Grises
+            Ver Imagen con Letras Distintas en Gris
           </a>
           <br />
           {/* Opcional: Mostrar el HTML dentro de un iframe */}
           <iframe
             src={htmlUrl}
-            title="Imagen en M's Grises"
+            title="Imagen con Letras Distintas en Gris"
             style={{ width: '100%', height: '500px', border: '1px solid #ccc', marginTop: '10px' }}
           ></iframe>
           <h3>HTML guardado en /backend/data/imagen_con_letras</h3>
@@ -107,4 +107,4 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
   );
 };
 
-export default ImagenConMsGrises;
+export default ImagenConDistintasGris;

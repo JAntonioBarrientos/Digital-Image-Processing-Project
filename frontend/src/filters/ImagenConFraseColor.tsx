@@ -1,25 +1,31 @@
-// src/filters/ImagenConMsGrises.tsx
+// src/filters/ImagenConFraseColor.tsx
 import React, { useState } from 'react';
 
-interface ImagenConMsGrisesProps {
-  selectedImage: File | null; // Ahora siempre será la imagen original
+interface ImagenConFraseColorProps {
+  selectedImage: File | null;
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
 }
 
-const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
+const ImagenConFraseColor: React.FC<ImagenConFraseColorProps> = ({
   selectedImage,
   setProcessedImageUrl,
   setIsProcessing,
 }) => {
   const [gridWidth, setGridWidth] = useState<number>(5);
   const [gridHeight, setGridHeight] = useState<number>(5);
+  const [phrase, setPhrase] = useState<string>('');
   const [htmlUrl, setHtmlUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const applyFilter = async () => {
     if (!selectedImage) {
       alert('Por favor, selecciona una imagen primero.');
+      return;
+    }
+
+    if (!phrase.trim()) {
+      alert('Por favor, ingresa una frase.');
       return;
     }
 
@@ -31,16 +37,17 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
     formData.append('image', selectedImage);
     formData.append('grid_width', gridWidth.toString());
     formData.append('grid_height', gridHeight.toString());
+    formData.append('phrase', phrase);
 
     try {
-      const response = await fetch('http://localhost:5000/apply-letras-ms-gris', {
+      const response = await fetch('http://localhost:5000/apply-letras-frase-color', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al aplicar el filtro LetrasMsGris');
+        throw new Error(errorData.error || 'Error al aplicar el filtro LetrasFraseColor');
       }
 
       const data = await response.json();
@@ -51,7 +58,7 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         throw new Error('Respuesta inválida del servidor');
       }
     } catch (error: any) {
-      console.error('Error al aplicar el filtro LetrasMsGris:', error);
+      console.error('Error al aplicar el filtro LetrasFraseColor:', error);
       setError(error.message || 'Ocurrió un error inesperado');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
@@ -60,7 +67,7 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
 
   return (
     <div>
-      <h3>Aplicar Filtro Letras M en Gris</h3>
+      <h3>Aplicar Filtro Letras con Frase y Color</h3>
       <label>
         <b>Ancho del Grid (píxeles):</b>
         <input
@@ -81,7 +88,17 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         />
       </label>
       <br />
-      <button onClick={applyFilter}>Aplicar Filtro Letras M en Gris</button>
+      <label>
+        <b>Frase:</b>
+        <input
+          type="text"
+          value={phrase}
+          onChange={(e) => setPhrase(e.target.value)}
+          placeholder="Ingresa una frase"
+        />
+      </label>
+      <br />
+      <button onClick={applyFilter}>Aplicar Filtro Letras con Frase y Color</button>
 
       {/* Mostrar mensajes de error */}
       {error && <p className="error-message">{error}</p>}
@@ -91,13 +108,13 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
         <div className="html-preview">
           <h4>Resultado:</h4>
           <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
-            Ver Imagen en M's Grises
+            Ver Imagen con Letras y Frase en Color
           </a>
           <br />
           {/* Opcional: Mostrar el HTML dentro de un iframe */}
           <iframe
             src={htmlUrl}
-            title="Imagen en M's Grises"
+            title="Imagen con Letras y Frase en Color"
             style={{ width: '100%', height: '500px', border: '1px solid #ccc', marginTop: '10px' }}
           ></iframe>
           <h3>HTML guardado en /backend/data/imagen_con_letras</h3>
@@ -107,4 +124,4 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
   );
 };
 
-export default ImagenConMsGrises;
+export default ImagenConFraseColor;

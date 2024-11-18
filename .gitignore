@@ -39,3 +39,7 @@ backend/data/image_library/*
 
 # No ignorar los archivos .gitkeep en image_library/
 !backend/data/image_library/.gitkeep
+
+
+# No ignorar los archivos .gitkeep en imagen_con_letras/
+!backend/data/imagen_con_letras/.gitkeep

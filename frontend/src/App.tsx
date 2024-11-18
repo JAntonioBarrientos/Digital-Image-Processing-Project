@@ -26,8 +26,10 @@ import MosaicFilter from './filters/MosaicFilter';
 import ResizeFilter from './filters/ResizeFilter';
 import ImagenConMsGrises from './filters/ImagenConMsGrises';
 import ImagenConMsColor from './filters/ImagenConMsColor';
-import ImagenConLetrasDistintosGrises from './filters/ImagenConLetrasDistintosGrises';
-import ImagenConLetrasDistintosColor from './filters/ImagenConLetrasDistintosColor';
+import ImagenConDistintasGris from './filters/ImagenConDistintasGris';
+import ImagenConDistintasColor from './filters/ImagenConDistintasColor';
+import ImagenConFraseGris from './filters/ImagenConFraseGris';
+import ImagenConFraseColor from './filters/ImagenConFraseColor';
 
 
 const App: React.FC = () => {
@@ -313,8 +315,10 @@ const App: React.FC = () => {
             <ul>
               <li onClick={() => setSelectedFilter('letras-m-gris')}>Imagenes con M's tonos de gris</li>
               <li onClick={() => setSelectedFilter('letras-m-color')}>Imagenes con M's a color</li>
-              <li onClick={() => setSelectedFilter('letras-con-distintos-gris')}>Imagenes con 'MNH#QUAD0Y2$%+. ' tonos de gris</li>
-              <li onClick={() => setSelectedFilter('letras-con-distintos-color')}>Imagenes con 'MNH#QUAD0Y2$%+. ' a color</li>
+              <li onClick={() => setSelectedFilter('letras-distintas-gris')}>Imagenes con 'MNH#QUAD0Y2$%+. ' tonos de gris</li>
+              <li onClick={() => setSelectedFilter('letras-distintas-color')}>Imagenes con 'MNH#QUAD0Y2$%+. ' a color</li>
+              <li onClick={() => setSelectedFilter('letras-frase-gris')}>Imagenes con frase tonos de gris</li>
+              <li onClick={() => setSelectedFilter('letras-frase-color')}>Imagenes con frase a color</li>
               <li onClick={() => setSelectedFilter('documentation-tarea9')}>Documentación</li>
             </ul>
           )}
@@ -565,26 +569,42 @@ const App: React.FC = () => {
               />
             )}
 
-            {selectedImage && selectedFilter === 'letras-m-color' && (
+            {/* Componente para el filtro Letras M en Color */}
+            {originalImage && selectedFilter === 'letras-m-color' && (
               <ImagenConMsColor
-                selectedImage={selectedImage}
-                setImagePreview={setImagePreview}
+                selectedImage={originalImage} // Pasar la imagen original
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
             )}
-            {selectedImage && selectedFilter === 'letras-con-distintos-gris' && (
-              <ImagenConLetrasDistintosGrises
-                selectedImage={selectedImage}
-                setImagePreview={setImagePreview}
+            {/* Componente para el filtro Letras Distintas en Gris */}
+            {originalImage && selectedFilter === 'letras-distintas-gris' && (
+              <ImagenConDistintasGris
+                selectedImage={originalImage} // Pasar la imagen original
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
             )}
-            {selectedImage && selectedFilter === 'letras-con-distintos-color' && (
-              <ImagenConLetrasDistintosColor
-                selectedImage={selectedImage}
-                setImagePreview={setImagePreview}
+            {/* Componente para el filtro Letras Distintas en Color */}
+            {originalImage && selectedFilter === 'letras-distintas-color' && (
+              <ImagenConDistintasColor
+                selectedImage={originalImage} // Pasar la imagen original
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {/* Componente para el filtro Letras con Frase en Gris */}
+            {originalImage && selectedFilter === 'letras-frase-gris' && (
+              <ImagenConFraseGris
+                selectedImage={originalImage} // Pasar la imagen original
+                setProcessedImageUrl={setProcessedImageUrl}
+                setIsProcessing={setIsProcessing}
+              />
+            )}
+            {/* Componente para el filtro Letras con Frase en Color */}
+            {originalImage && selectedFilter === 'letras-frase-color' && (
+              <ImagenConFraseColor
+                selectedImage={originalImage} // Pasar la imagen original
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
