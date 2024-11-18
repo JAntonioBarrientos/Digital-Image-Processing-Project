@@ -28,6 +28,10 @@ backend/data/*
 !backend/data/image_library/
 
 # No ignorar el directorio image_library/
+!backend/data/imagen_con_letras/
+
+
+# No ignorar el directorio image_library/
 !backend/data/water_marks/
 
 #No ignorar el readme
