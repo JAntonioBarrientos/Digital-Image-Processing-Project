@@ -1,15 +1,21 @@
+// src/filters/ImagenConMsGrises.tsx
 import React, { useState } from 'react';
 
 interface ImagenConMsGrisesProps {
-  selectedImage: File | null;
-  setImagePreview: (url: string) => void;
+  selectedImage: File | null; // Ahora siempre será la imagen original
   setProcessedImageUrl: (url: string) => void;
   setIsProcessing: (isProcessing: boolean) => void;
 }
 
-const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({ selectedImage, setImagePreview, setProcessedImageUrl, setIsProcessing }) => {
-  const [blockWidth, setBlockWidth] = useState<number>(50);
-  const [blockHeight, setBlockHeight] = useState<number>(50);
+const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({
+  selectedImage,
+  setProcessedImageUrl,
+  setIsProcessing,
+}) => {
+  const [gridWidth, setGridWidth] = useState<number>(50);
+  const [gridHeight, setGridHeight] = useState<number>(50);
+  const [htmlUrl, setHtmlUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const applyFilter = async () => {
     if (!selectedImage) {
@@ -18,28 +24,35 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({ selectedImage, se
     }
 
     setIsProcessing(true); // Activar el mensaje de "Procesando imagen..."
+    setError(null); // Resetear cualquier error previo
+    setHtmlUrl(null); // Resetear la URL previa
 
     const formData = new FormData();
     formData.append('image', selectedImage);
-    formData.append('block_width', blockWidth.toString());
-    formData.append('block_height', blockHeight.toString());
+    formData.append('grid_width', gridWidth.toString());
+    formData.append('grid_height', gridHeight.toString());
 
     try {
-      const response = await fetch('http://localhost:5000/apply-imagen-ms-grises', {
+      const response = await fetch('http://localhost:5000/apply-letras-ms-gris', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Error al aplicar el filtro máximo');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al aplicar el filtro LetrasMsGris');
       }
 
-      const data = await response.blob();
-      const imageUrl = URL.createObjectURL(data);
-      setImagePreview(imageUrl);
-      setProcessedImageUrl(imageUrl);
-    } catch (error) {
-      console.error('Error al aplicar el filtro máximo:', error);
+      const data = await response.json();
+      if (data.html_url) {
+        setHtmlUrl(data.html_url);
+        setProcessedImageUrl(data.html_url);
+      } else {
+        throw new Error('Respuesta inválida del servidor');
+      }
+    } catch (error: any) {
+      console.error('Error al aplicar el filtro LetrasMsGris:', error);
+      setError(error.message || 'Ocurrió un error inesperado');
     } finally {
       setIsProcessing(false); // Desactivar el mensaje de "Procesando imagen..." cuando termine
     }
@@ -47,27 +60,48 @@ const ImagenConMsGrises: React.FC<ImagenConMsGrisesProps> = ({ selectedImage, se
 
   return (
     <div>
-      <h3>Aplicar Filtro</h3>
+      <h3>Aplicar Filtro Letras M en Gris</h3>
       <label>
-        <b>Tamaño del Bloque Grid (Ancho en píxeles):</b>
+        <b>Ancho del Grid (píxeles):</b>
         <input
           type="number"
           min="1"
-          value={blockWidth}
-          onChange={(e) => setBlockWidth(parseInt(e.target.value) || 1)}
+          value={gridWidth}
+          onChange={(e) => setGridWidth(parseInt(e.target.value) || 1)}
         />
       </label>
       <br />
       <label>
-        <b>Tamaño del Bloque Grid (Alto en píxeles):</b>
+        <b>Alto del Grid (píxeles):</b>
         <input
           type="number"
           min="1"
-          value={blockHeight}
-          onChange={(e) => setBlockHeight(parseInt(e.target.value) || 1)}
+          value={gridHeight}
+          onChange={(e) => setGridHeight(parseInt(e.target.value) || 1)}
         />
       </label>
-      <button onClick={applyFilter}>Aplicar Filtro Máximo</button>
+      <br />
+      <button onClick={applyFilter}>Aplicar Filtro Letras M en Gris</button>
+
+      {/* Mostrar mensajes de error */}
+      {error && <p className="error-message">{error}</p>}
+
+      {/* Mostrar la URL del HTML generado */}
+      {htmlUrl && (
+        <div className="html-preview">
+          <h4>Resultaado:</h4>
+          <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
+            Ver Imagen en M's Grises
+          </a>
+          <br />
+          {/* Opcional: Mostrar el HTML dentro de un iframe */}
+          <iframe
+            src={htmlUrl}
+            title="Imagen en M's Grises"
+            style={{ width: '100%', height: '500px', border: '1px solid #ccc', marginTop: '10px' }}
+          ></iframe>
+        </div>
+      )}
     </div>
   );
 };

@@ -139,4 +139,3 @@ class ImageService:
     def apply_resize_filter(self, percent_x, percent_y):
         resize_filter = ResizeFilter(self.image, percent_x, percent_y)
         return resize_filter.apply_filter()
-

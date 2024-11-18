@@ -163,6 +163,33 @@ const App: React.FC = () => {
     return s.charAt(0).toUpperCase() + s.slice(1);
   };
 
+  // Actualización del selectedImage solo si processedImageUrl es una imagen
+  useEffect(() => {
+    const updateSelectedImage = async () => {
+      if (processedImageUrl) {
+        // Definir una lista de extensiones de imagen
+        const imageExtensions = ['.png', '.jpg', '.jpeg', '.bmp', '.gif'];
+        const isImage = imageExtensions.some(ext => processedImageUrl.toLowerCase().endsWith(ext));
+
+        if (isImage) {
+          try {
+            const response = await fetch(processedImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'processed_image.jpg', { type: blob.type });
+            setSelectedImage(file);
+            setCurrentImage(file);
+          } catch (error) {
+            console.error('Error al convertir la URL a File:', error);
+          }
+        }
+        // Si no es una imagen, no hacer nada
+      }
+    };
+
+    updateSelectedImage();
+  }, [processedImageUrl]);
+
+
   return (
     <div className="app">
       {/* Botón para retraer o mostrar la barra lateral */}
@@ -529,14 +556,15 @@ const App: React.FC = () => {
                 setIsProcessing={setIsProcessing}
               />
             )}
-            {selectedImage && selectedFilter === 'letras-m-gris' && (
+            {/* Componente para el filtro Letras M en Gris */}
+            {originalImage && selectedFilter === 'letras-m-gris' && (
               <ImagenConMsGrises
-                selectedImage={selectedImage}
-                setImagePreview={setImagePreview}
+                selectedImage={originalImage} // Pasar la imagen original
                 setProcessedImageUrl={setProcessedImageUrl}
                 setIsProcessing={setIsProcessing}
               />
             )}
+
             {selectedImage && selectedFilter === 'letras-m-color' && (
               <ImagenConMsColor
                 selectedImage={selectedImage}
